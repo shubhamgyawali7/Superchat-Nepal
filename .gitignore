@@ -16,6 +16,10 @@
 # ------------------------------------------------------------------------------
 # These rules ensure sensitive or redundant files inside client/server are NOT pushed
 
+/client-backup/
+**/client-backup/
+**/client-backup
+
 # Dependencies
 **/node_modules/
 **/jspm_packages/
