@@ -1,0 +1,45 @@
+# Ignore everything in the root directory by default
+/*
+
+# Allow the main project folders
+!/client/
+!/server/
+
+# Allow the primary README file
+!/README.md
+
+# Allow this .gitignore file itself
+!/.gitignore
+
+# ------------------------------------------------------------------------------
+# Global Exclusions
+# ------------------------------------------------------------------------------
+# These rules ensure sensitive or redundant files inside client/server are NOT pushed
+
+# Dependencies
+**/node_modules/
+**/jspm_packages/
+
+# Environment Variables & Secrets
+**/.env
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+
+# Build outputs
+**/.next/
+**/out/
+**/dist/
+**/build/
+
+# IDE & OS files
+**/.vscode/
+**/.idea/
+**/.DS_Store
+**/Thumbs.db
+
+# Logs
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
