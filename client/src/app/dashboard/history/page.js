@@ -5,91 +5,92 @@ import { createClient } from "@/utils/supabase/server";
 export default async function HistoryPage() {
   const supabase = await createClient();
 
-  // 1. Get authenticated user
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) redirect("/login");
 
-  if (authError || !user) {
-    redirect("/login");
-  }
-
-  // 2. Fetch All Donations for this streamer
-  const { data: donations, error: dError } = await supabase
+  const { data: donations } = await supabase
     .from("donations")
     .select("*")
     .eq("streamer_id", user.id)
     .order("created_at", { ascending: false });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Donation History</h1>
-            <p className="text-slate-400 text-sm mt-1">View and manage all your received donations</p>
-          </div>
-          <button className="bg-slate-800 px-4 py-2 rounded text-sm hover:bg-slate-700 transition-colors">
-            Export CSV
-          </button>
-        </div>
+    <div className="text-foreground" style={{ fontFamily: "'DM Mono', monospace" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');`}</style>
 
-        <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-slate-800/50 text-slate-400 text-xs uppercase tracking-wider">
-                <th className="px-6 py-4 font-semibold">Date</th>
-                <th className="px-6 py-4 font-semibold">Donor</th>
-                <th className="px-6 py-4 font-semibold">Amount</th>
-                <th className="px-6 py-4 font-semibold">Method</th>
-                <th className="px-6 py-4 font-semibold">Status</th>
-                <th className="px-6 py-4 font-semibold">Message</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800">
-              {donations?.length > 0 ? (
-                donations.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="px-6 py-4 text-sm text-slate-400">
-                      {new Date(item.created_at).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </td>
-                    <td className="px-6 py-4 font-medium">{item.supporter_name}</td>
-                    <td className="px-6 py-4 text-emerald-400 font-bold">रू {item.amount}</td>
-                    <td className="px-6 py-4">
-                      <span className="text-xs bg-slate-800 px-2 py-1 rounded text-slate-300 border border-slate-700 uppercase">
-                        {item.payment_gateway}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase ${
-                        item.status === 'verified' 
-                          ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' 
-                          : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
-                      }`}>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-400 max-w-xs truncate italic">
-                      "{item.message}"
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="px-6 py-12 text-center text-slate-500 italic">
-                    No donations found yet.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <p className="text-[10px] text-text-muted uppercase tracking-widest mb-0.5">Dashboard / History</p>
+          <h1 className="text-xl font-bold uppercase tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+            Donation History
+          </h1>
         </div>
+        <button className="text-xs border border-surface-border hover:border-orange-500/30 text-text-muted hover:text-orange-400 px-3 py-2 rounded uppercase tracking-widest transition-all">
+          Export CSV
+        </button>
+      </div>
+
+      {/* Summary strip */}
+      {donations && donations.length > 0 && (
+        <div className="flex gap-3 mb-5">
+          <div className="bg-surface border border-surface-border px-4 py-2.5 rounded text-sm">
+            <span className="text-text-muted text-[10px] uppercase tracking-widest mr-2">Total</span>
+            <span className="font-bold text-orange-500">
+              रू {donations.reduce((s, d) => s + (d.amount || 0), 0).toLocaleString()}
+            </span>
+          </div>
+          <div className="bg-surface border border-surface-border px-4 py-2.5 rounded text-sm">
+            <span className="text-text-muted text-[10px] uppercase tracking-widest mr-2">Records</span>
+            <span className="font-bold">{donations.length}</span>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-surface border border-surface-border rounded-lg overflow-hidden">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="border-b border-surface-border">
+              {["Date", "Donor", "Amount", "Method", "Status", "Message"].map(h => (
+                <th key={h} className="px-5 py-3 text-[10px] text-text-muted uppercase tracking-widest font-medium">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {donations?.length > 0 ? (
+              donations.map((item) => (
+                <tr key={item.id} className="border-b border-surface-border hover:bg-foreground/5 transition-colors">
+                  <td className="px-5 py-3 text-xs text-text-muted">
+                    {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </td>
+                  <td className="px-5 py-3 text-sm font-bold">{item.supporter_name}</td>
+                  <td className="px-5 py-3 text-sm text-orange-500 font-bold">रू {item.amount}</td>
+                  <td className="px-5 py-3">
+                    <span className="text-[10px] bg-background border border-surface-border px-2 py-0.5 rounded uppercase tracking-wide text-text-muted">
+                      {item.payment_gateway}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3">
+                    <span className={`text-[10px] px-2 py-0.5 rounded uppercase tracking-wide font-bold ${item.status === 'verified'
+                        ? 'bg-emerald-500/10 text-emerald-500'
+                        : 'bg-amber-500/10 text-amber-500'
+                      }`}>
+                      {item.status}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3 text-xs text-text-muted max-w-[160px] truncate italic">"{item.message}"</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="px-5 py-12 text-center text-xs text-text-muted">
+                  No donations found yet.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
-}
+
+}

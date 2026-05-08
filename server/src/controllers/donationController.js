@@ -65,7 +65,7 @@ export const initiateDonation = async (req, res) => {
         product_code: ESEWA_PRODUCT_CODE,
         product_service_charge: 0,
         product_delivery_charge: 0,
-        success_url: `${process.env.CLIENT_URL}/donate/success`,
+        success_url: `${process.env.CLIENT_URL}/donate/${streamerUsername}/success`,
         failure_url: `${process.env.CLIENT_URL}/donate/error`,
         signed_field_names: "total_amount,transaction_uuid,product_code",
         signature,
@@ -198,7 +198,8 @@ export const verifyEsewa = async (req, res) => {
         message: "Donation verified and alert triggered",
         donation: {
           name: donation.supporter_name,
-          amount: donation.amount
+          amount: donation.amount,
+          streamer: streamerUsername
         }
       });
     }

@@ -1,26 +1,21 @@
-// app/donate/success/page.js
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 
 export default function DonateSuccessPage() {
   const [status, setStatus] = useState("checking"); // checking | completed | failed
   const [errorMsg, setErrorMsg] = useState("");
-  const [streamerUsername, setStreamerUsername] = useState(null);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const params = useParams();
+  const username = params.username;
 
   useEffect(() => {
-    // 1. Check URL query params first
-    const urlStreamer = searchParams.get("streamer");
-    if (urlStreamer) setStreamerUsername(urlStreamer);
-
     const verifyPayment = async () => {
       const dataParam = searchParams.get("data");
 
       if (!dataParam) {
         const donationId = sessionStorage.getItem("pending_donation_id");
-
         if (!donationId) {
           setStatus("completed");
           return;
@@ -44,9 +39,6 @@ export default function DonateSuccessPage() {
           const result = await response.json();
           if (result.success) {
             setStatus("completed");
-            if (result.donation?.streamer) {
-              setStreamerUsername(result.donation.streamer);
-            }
             sessionStorage.removeItem("pending_donation_id");
           } else {
             setStatus("failed");
@@ -91,13 +83,12 @@ export default function DonateSuccessPage() {
     );
   }
 
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <p className="text-3xl font-bold text-green-600">Donation Successful! 🎉</p>
       <p className="text-gray-500 mt-2 text-lg">Thank you for your support!</p>
       <button
-        onClick={() => router.push(`/donate/${streamerUsername}`)}
+        onClick={() => router.push(`/donate/${username}`)}
         className="mt-8 px-8 py-3 bg-green-500 hover:bg-green-600 transition-colors text-white rounded-xl font-bold"
       >
         Support More

@@ -1,38 +1,88 @@
 @import "tailwindcss";
+/* Fonts are loaded in layout.js via next/font/google */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-heading: var(--font-outfit), sans-serif;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --surface: #ffffff;
+  --surface-border: rgba(0, 0, 0, 0.05);
+  --text-muted: #64748b;
+  --primary: #f97316;
 }
 
-@theme inline {
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  --surface: #111111;
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --text-muted: #94a3b8;
+}
+
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface: var(--surface);
+  --color-surface-border: var(--surface-border);
+  --color-text-muted: var(--text-muted);
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-outfit);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  transition: background 0.3s, color 0.3s;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.heading {
+  font-family: var(--font-heading);
+}
+
+/* ── Mobile & Touch Enhancements ────────────────────────────────────────── */
+@media (hover: none) {
+  .tap-highlight-none {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:active,
+  .clickable:active,
+  a:active {
+    transform: scale(0.96);
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-body {
-  background-color: transparent !important;
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Ensure touch targets are at least 44px for accessibility */
+button,
+a,
+input,
+select,
+.touch-target {
+  min-height: 44px;
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Hide arrows in Chrome, Safari, Edge, Opera */
 .no-spinner::-webkit-outer-spin-button,
 .no-spinner::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-
-/* Hide arrows in Firefox */
-/* .no-spinner {
-  -moz-appearance: textfield;
-} */

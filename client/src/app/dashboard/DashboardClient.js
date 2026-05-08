@@ -1,185 +1,177 @@
 "use client";
 import React, { useState } from "react";
+import { useToast } from "@/hooks/useToast";
 
 export default function DashboardClient({ user, stats, serverUrl, overlayUrl, donationUrl }) {
-  const [copiedOverlay, setCopiedOverlay] = useState(false);
-  const [copiedDonation, setCopiedDonation] = useState(false);
+  const { addToast } = useToast();
+  const [isTesting, setIsTesting] = useState(false);
 
   const copyOverlayPath = () => {
     navigator.clipboard.writeText(overlayUrl);
-    setCopiedOverlay(true);
-    setTimeout(() => setCopiedOverlay(false), 2000);
+    addToast("Overlay URL copied to clipboard!", "success");
   };
 
   const copyDonationPath = () => {
     navigator.clipboard.writeText(donationUrl);
-    setCopiedDonation(true);
-    setTimeout(() => setCopiedDonation(false), 2000);
+    addToast("Donation link copied to clipboard!", "success");
   };
 
   const sendTestAlert = async () => {
+    if (isTesting) return;
+    setIsTesting(true);
     try {
       const res = await fetch(`${serverUrl}/api/streamer/test-alert`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
       if (res.ok) {
-        alert("Test alert sent! Check your OBS/Overlay tab.");
+        addToast("Test alert sent successfully!", "success");
+      } else {
+        throw new Error("Failed to send test alert");
       }
     } catch (err) {
       console.error("Test alert failed:", err);
+      addToast("Failed to send test alert. Please try again.", "error");
+    } finally {
+      setIsTesting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 p-4 lg:p-8">
-      {/* Header Area */}
-      <header className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+    <div className="text-foreground">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-7">
         <div>
-          <h1 className="text-3xl font-bold text-white">
-            Namaste, {user?.username || "Streamer"}! 🙏
+          <p className="text-[10px] text-text-muted uppercase tracking-widest mb-0.5">Dashboard</p>
+          <h1 className="text-xl font-bold text-foreground heading">
+            Namaste, {user?.username || "Streamer"} 🙏
           </h1>
-          <p className="text-slate-400 text-sm">
-            Here is what's happening with your stream today.
-          </p>
         </div>
-
-        {/* OBS Overlay Link Box */}
-        <div className="bg-slate-900 border border-orange-500/30 p-4 rounded-xl flex items-center gap-4">
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-orange-500 font-bold">
-              Your OBS Overlay URL
-            </p>
-            <p className="text-xs text-slate-400 truncate max-w-[200px]">
-              {overlayUrl}
-            </p>
-          </div>
-          <button
-            onClick={copyOverlayPath}
-            className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all"
-          >
-            {copiedOverlay ? "Copied!" : "Copy Link"}
-          </button>
+        <div className="flex gap-2">
           <button
             onClick={sendTestAlert}
-            className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all border border-white/5"
+            disabled={isTesting}
+            className="text-xs border border-surface-border hover:border-orange-500/40 text-text-muted hover:text-orange-400 px-3 py-2 rounded transition-all disabled:opacity-50"
           >
-            Test Alert
+            {isTesting ? "Sending..." : "Test Alert"}
           </button>
         </div>
-      </header>
+      </div>
 
-      {/* Sharing Section */}
-      <section className="max-w-7xl mx-auto mb-10">
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-orange-500/10 rounded-full flex items-center justify-center text-2xl">
-              🔗
-            </div>
-            <div>
-              <h3 className="font-bold text-white">Your Public Donation Link</h3>
-              <p className="text-slate-400 text-xs">Share this link with your viewers to start receiving superchats.</p>
-              <p className="text-orange-500 font-mono text-sm mt-1">{donationUrl}</p>
-            </div>
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+        <div className="bg-surface border border-surface-border p-4 rounded-lg col-span-2">
+          <p className="text-[10px] text-text-muted uppercase tracking-widest mb-1">Total Earnings</p>
+          <p className="text-2xl font-bold text-foreground heading">
+            रू {stats.totalEarnings.toLocaleString()}
+          </p>
+          <p className="text-[10px] text-text-muted opacity-60 mt-1">NPR · All time</p>
+        </div>
+        <div className="bg-surface border border-surface-border p-4 rounded-lg">
+          <p className="text-[10px] text-text-muted uppercase tracking-widest mb-1">Supporters</p>
+          <p className="text-2xl font-bold text-foreground heading">{stats.recentSupporters}</p>
+          <p className="text-[10px] text-text-muted opacity-60 mt-1">Last 24h</p>
+        </div>
+        <div className="bg-surface border border-surface-border p-4 rounded-lg flex flex-col justify-between">
+          <p className="text-[10px] text-text-muted uppercase tracking-widest mb-2">Withdraw</p>
+          <div className="space-y-1.5">
+            <button className="w-full bg-background border border-surface-border hover:border-orange-500/30 text-xs py-1.5 rounded transition-all text-text-muted hover:text-orange-400">
+              eSewa
+            </button>
+            <button className="w-full bg-background border border-surface-border hover:border-orange-500/30 text-xs py-1.5 rounded transition-all text-text-muted hover:text-orange-400">
+              Khalti
+            </button>
           </div>
-          <div className="flex gap-3">
+        </div>
+      </div>
+
+      {/* Links Row */}
+      <div className="grid md:grid-cols-2 gap-3 mb-5">
+        {/* OBS Overlay */}
+        <div className="bg-surface border border-orange-500/20 p-4 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
+            <p className="text-[10px] text-orange-400 uppercase tracking-widest font-bold">OBS Overlay URL</p>
+          </div>
+          <p className="text-xs text-text-muted font-mono truncate mb-3">{overlayUrl}</p>
+          <div className="flex gap-2">
+            <button
+              onClick={copyOverlayPath}
+              className="flex-1 bg-orange-500 hover:bg-orange-400 text-black text-xs font-bold py-1.5 rounded uppercase tracking-wide transition-all"
+            >
+              Copy URL
+            </button>
+          </div>
+        </div>
+
+        {/* Donation Link */}
+        <div className="bg-surface border border-surface-border p-4 rounded-lg">
+          <p className="text-[10px] text-text-muted uppercase tracking-widest mb-2">Public Donation Link</p>
+          <p className="text-xs text-orange-400 font-mono truncate mb-3">{donationUrl}</p>
+          <div className="flex gap-2">
             <button
               onClick={copyDonationPath}
-              className="bg-white text-black hover:bg-slate-200 px-6 py-3 rounded-xl font-black transition-all active:scale-95"
+              className="flex-1 bg-background border border-surface-border hover:border-orange-500/30 text-xs text-text-muted hover:text-foreground py-1.5 rounded uppercase tracking-wide transition-all"
             >
-              {copiedDonation ? "COPIED TO CLIPBOARD!" : "COPY SHARING LINK"}
+              Copy Link
             </button>
-            <a 
-              href={donationUrl} 
-              target="_blank" 
-              className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-xl font-bold transition-all"
+            <a
+              href={donationUrl}
+              target="_blank"
+              className="px-3 bg-background border border-surface-border hover:border-orange-500/30 text-xs text-text-muted hover:text-orange-400 py-1.5 rounded uppercase tracking-wide transition-all"
             >
-              PREVIEW PAGE
+              Preview
             </a>
           </div>
         </div>
-      </section>
+      </div>
 
-      <main className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Stats Cards */}
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-          <p className="text-slate-400 text-sm">Total Earnings (NPR)</p>
-          <h3 className="text-4xl font-black text-white mt-2">
-            रू {stats.totalEarnings.toLocaleString()}
-          </h3>
-          <p className="text-green-500 text-xs mt-2">↑ 0% from last stream</p>
-        </div>
-
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-          <p className="text-slate-400 text-sm">Recent Supporters</p>
-          <h3 className="text-4xl font-black text-white mt-2">
-            {stats.recentSupporters}
-          </h3>
-          <p className="text-slate-500 text-xs mt-2">Last 24 hours</p>
-        </div>
-
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-center">
-          <button className="w-full bg-slate-800 hover:bg-slate-700 py-3 rounded-xl font-bold mb-2">
-            Withdraw to eSewa
-          </button>
-          <button className="w-full bg-slate-800 hover:bg-slate-700 py-3 rounded-xl font-bold">
-            Withdraw to Khalti
+      {/* Donations Table */}
+      <div className="bg-surface border border-surface-border rounded-lg overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-surface-border flex items-center justify-between">
+          <p className="text-xs font-bold uppercase tracking-widest heading">Recent Donations</p>
+          <button className="text-[10px] text-orange-500/70 hover:text-orange-400 uppercase tracking-widest transition-colors">
+            View All →
           </button>
         </div>
-
-        {/* Recent Donations Table */}
-        <div className="md:col-span-3 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-          <div className="p-6 border-b border-slate-800 flex justify-between items-center">
-            <h3 className="font-bold text-lg">Recent Donations</h3>
-            <button className="text-orange-500 text-sm hover:underline">View All</button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="text-slate-500 text-sm uppercase bg-slate-950/50">
-                  <th className="px-6 py-4 font-medium">Supporter</th>
-                  <th className="px-6 py-4 font-medium">Amount</th>
-                  <th className="px-6 py-4 font-medium">Message</th>
-                  <th className="px-6 py-4 font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800">
-                {stats.recentDonations.length > 0 ? (
-                  stats.recentDonations.map((donation) => (
-                    <tr key={donation.id}>
-                      <td className="px-6 py-4 font-bold">{donation.supporter_name}</td>
-                      <td className="px-6 py-4 text-orange-500 font-bold">
-                        रू {donation.amount}
-                      </td>
-                      <td className="px-6 py-4 text-slate-400 text-sm italic">
-                        "{donation.message}"
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-2 py-1 rounded text-xs ${
-                            donation.status === "verified"
-                              ? "bg-green-500/10 text-green-500"
-                              : "bg-yellow-500/10 text-yellow-500"
-                          }`}
-                        >
-                          {donation.status.charAt(0).toUpperCase() +
-                            donation.status.slice(1)}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="4" className="px-6 py-10 text-center text-slate-500">
-                      No donations found yet. Keep streaming! 🚀
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-surface-border">
+                {["Supporter", "Amount", "Message", "Status"].map(h => (
+                  <th key={h} className="px-5 py-3 text-[10px] text-text-muted uppercase tracking-widest font-medium">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {stats.recentDonations.length > 0 ? (
+                stats.recentDonations.map((d) => (
+                  <tr key={d.id} className="border-b border-surface-border hover:bg-foreground/5 transition-colors">
+                    <td className="px-5 py-3 text-sm font-bold">{d.supporter_name}</td>
+                    <td className="px-5 py-3 text-sm text-orange-500 font-bold">रू {d.amount}</td>
+                    <td className="px-5 py-3 text-xs text-text-muted italic max-w-[200px] truncate">"{d.message}"</td>
+                    <td className="px-5 py-3">
+                      <span className={`text-[10px] px-2 py-0.5 rounded uppercase tracking-wide font-bold ${d.status === "verified"
+                          ? "bg-emerald-500/10 text-emerald-500"
+                          : "bg-amber-500/10 text-amber-500"
+                        }`}>
+                        {d.status}
+                      </span>
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="px-5 py-10 text-center text-xs text-text-muted">
+                    No donations yet. Keep streaming! 🚀
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      </main>
+      </div>
     </div>
   );
+
 }

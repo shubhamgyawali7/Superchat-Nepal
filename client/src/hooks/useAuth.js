@@ -27,7 +27,12 @@ export function useAuth() {
       if (error && error.code !== "PGRST116") throw error; // PGRST116 = not found
       setProfile(data ?? null);
     } catch (err) {
-      console.error("Profile fetch error:", err);
+      console.error("Profile fetch error details:", {
+        message: err.message,
+        details: err.details,
+        hint: err.hint,
+        code: err.code
+      });
     }
   }, []);
 

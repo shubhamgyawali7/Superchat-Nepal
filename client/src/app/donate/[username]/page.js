@@ -1,7 +1,20 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import { createClient } from "@/utils/supabase/server";
-import DonationForm from "./DonationForm";
+import { Skeleton } from "@/components/common/Skeleton";
+
+const DonationForm = dynamic(() => import("./DonationForm"), {
+  loading: () => (
+    <div className="bg-slate-900/60 backdrop-blur-3xl border border-white/10 p-8 rounded-[2.5rem] space-y-8 animate-pulse">
+      <Skeleton className="h-40 w-full rounded-[2rem]" />
+      <Skeleton className="h-16 w-full rounded-2xl" />
+      <Skeleton className="h-32 w-full rounded-2xl" />
+      <Skeleton className="h-20 w-full rounded-3xl" />
+    </div>
+  )
+});
 
 export default async function DonationPage({ params }) {
   const { username } = await params;
@@ -9,10 +22,8 @@ export default async function DonationPage({ params }) {
 
   const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
-  // 1. Get current logged in user (optional)
   const { data: { user } } = await supabase.auth.getUser();
 
-  // 2. Fetch Streamer Profile
   const { data: streamer, error } = await supabase
     .from("profiles")
     .select("*")
@@ -39,15 +50,21 @@ export default async function DonationPage({ params }) {
       {/* Header Section */}
       <div className="text-center mb-10 max-w-2xl">
         {streamer.avatar_url ? (
-          <img
-            src={streamer.avatar_url}
-            alt={streamer.display_name}
-            className="w-24 h-24 rounded-full mx-auto mb-6 object-cover shadow-2xl transition-transform hover:scale-110"
-            style={{
-              border: `4px solid ${themeColor}`,
-              boxShadow: `0 0 40px ${themeColor}66`,
-            }}
-          />
+          <div className="relative w-24 h-24 mx-auto mb-6 group">
+            <Image
+              src={streamer.avatar_url}
+              alt={streamer.display_name || streamer.username}
+              fill
+              className="rounded-full object-cover shadow-2xl transition-transform group-hover:scale-110"
+              style={{
+                border: `4px solid ${themeColor}`,
+              }}
+            />
+            <div 
+              className="absolute inset-0 rounded-full blur-xl opacity-40 group-hover:opacity-60 transition-opacity"
+              style={{ backgroundColor: themeColor }}
+            ></div>
+          </div>
         ) : (
           <div
             className="w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl font-black shadow-2xl transition-transform hover:scale-110"
