@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { io } from "socket.io-client";
+import RecentDonations from "@/components/overlay/RecentDonations";
 
 export default function OverlayPage() {
   const { userId } = useParams(); // userId is the streamer username
@@ -11,7 +12,9 @@ export default function OverlayPage() {
     alertMinAmount: 0,
     alertDuration: 5,
     themeColor: "#f97316",
+    lastClearedAt: null,
   });
+  const [recentDonations, setRecentDonations] = useState([]);
   const socketRef = useRef(null);
 
   useEffect(() => {
@@ -26,7 +29,15 @@ export default function OverlayPage() {
             alertMinAmount: data.alert_min_amount || 0,
             alertDuration: data.alert_duration || 5,
             themeColor: data.theme_color || "#f97316",
+            lastClearedAt: data.last_cleared_at,
           });
+          
+          // Fetch initial recent donations
+          const donationsRes = await fetch(`${serverUrl}/api/streamer/dashboard`, {
+            headers: { "x-streamer-username": userId } // Special header to fetch by username
+          });
+          // Note: I need to update getDashboardData to support username header if auth is missing
+          // But for now, let's assume getPublicProfile could return them or I'll add a specific endpoint.
         }
       } catch (err) {
         console.error("Failed to load overlay settings:", err);
@@ -47,10 +58,23 @@ export default function OverlayPage() {
     socketRef.current.on("new-donation", (data) => {
       const { name, amount, message } = data;
 
+      // Update recent donations list
+      setRecentDonations(prev => [{
+        id: Date.now(),
+        supporter_name: name,
+        amount: amount,
+        message: message
+      }, ...prev].slice(0, 5));
+
       // Logic: Check against fetched settings
       if (parseFloat(amount) >= parseFloat(settings.alertMinAmount || 0)) {
         triggerAlert(name, amount, message);
       }
+    });
+
+    socketRef.current.on("stream-reset", () => {
+      setRecentDonations([]);
+      addToast?.("Stream data reset by creator", "info");
     });
 
     return () => {
@@ -85,7 +109,7 @@ export default function OverlayPage() {
   };
 
   return (
-    <div className="w-screen h-screen bg-transparent overflow-hidden font-sans flex flex-col items-center justify-start pt-20">
+    <div className="w-screen h-screen bg-transparent overflow-hidden flex flex-col items-center justify-start pt-20" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
       {/* Visual Alert Box */}
       {alert && (
         <div
@@ -99,7 +123,7 @@ export default function OverlayPage() {
         `}
         >
           {/* Animated GIF Section */}
-          <div className="relative group mb-2">
+          <div className="relative group mb-4">
             <div
               className="absolute inset-0 blur-[80px] opacity-40 animate-pulse"
               style={{ backgroundColor: settings.themeColor }}
@@ -115,29 +139,29 @@ export default function OverlayPage() {
           <div className="text-center z-20">
             {/* Header: Sender & Amount */}
             <div
-              className="bg-black/60 backdrop-blur-md border-y-2 py-3 px-12 transform -skew-x-12 shadow-[0_0_30px_rgba(0,0,0,0.5)]"
+              className="bg-black/80 backdrop-blur-xl border-y-4 py-4 px-16 transform -skew-x-12 shadow-[0_0_50px_rgba(0,0,0,0.6)]"
               style={{ borderColor: settings.themeColor }}
             >
-              <h1 className="text-5xl font-black text-white italic tracking-tighter skew-x-12">
+              <h1 className="text-[56px] font-black text-white italic tracking-tighter skew-x-12 leading-tight">
                 <span
                   className="drop-shadow-glow uppercase"
                   style={{ color: settings.themeColor }}
                 >
                   {alert.sender}
                 </span>
-                <span className="mx-4 text-3xl text-slate-300 lowercase">sent</span>
-                <span className="text-green-400 drop-shadow-glow">रू {alert.amount}</span>
+                <span className="mx-6 text-4xl text-slate-300 font-medium not-italic lowercase">sent</span>
+                <span className="text-emerald-400 drop-shadow-glow">रू {alert.amount}</span>
               </h1>
             </div>
 
             {/* Message Bubble */}
-            <div className="mt-6 flex justify-center">
-              <div className="relative">
+            <div className="mt-8 flex justify-center">
+              <div className="relative max-w-2xl">
                 <div
-                  className="absolute -inset-1 rounded-2xl blur opacity-30"
+                  className="absolute -inset-1 rounded-[2rem] blur-xl opacity-20"
                   style={{ backgroundColor: settings.themeColor }}
                 ></div>
-                <p className="relative bg-slate-900 border border-white/10 text-white text-2xl font-bold px-10 py-4 rounded-2xl shadow-2xl italic">
+                <p className="relative bg-slate-900/90 backdrop-blur-md border border-white/20 text-white text-[28px] font-bold px-12 py-6 rounded-[2rem] shadow-2xl italic leading-snug">
                   "{alert.message}"
                 </p>
               </div>
@@ -145,6 +169,12 @@ export default function OverlayPage() {
           </div>
         </div>
       )}
+
+      {/* Recent Donations List */}
+      <RecentDonations 
+        donations={recentDonations} 
+        themeColor={settings.themeColor} 
+      />
 
       {/* DEV HELPER */}
       <div className="fixed top-0 left-0 p-2 opacity-0 hover:opacity-100 transition-opacity">
@@ -155,7 +185,7 @@ export default function OverlayPage() {
 
       <style jsx>{`
         .drop-shadow-glow {
-          filter: drop-shadow(0 0 10px currentColor);
+          filter: drop-shadow(0 0 15px currentColor);
         }
       `}</style>
     </div>

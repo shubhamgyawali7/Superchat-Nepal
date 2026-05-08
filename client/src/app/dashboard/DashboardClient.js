@@ -1,14 +1,55 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useToast } from "@/hooks/useToast";
+import { QRCodeCanvas } from "qrcode.react";
 
-export default function DashboardClient({ user, stats, serverUrl, overlayUrl, donationUrl }) {
+export default function DashboardClient({ user, stats, serverUrl, overlayUrl, topOverlayUrl, donationUrl }) {
   const { addToast } = useToast();
   const [isTesting, setIsTesting] = useState(false);
+
+  const qrRef = useRef(null);
+
+  const downloadQR = () => {
+    const canvas = qrRef.current.querySelector("canvas");
+    const url = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${user.username}-donation-qr.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    addToast("QR Code downloaded!", "success");
+  };
+
+  const resetDonations = async () => {
+    if (!confirm("Are you sure you want to clear recent donations? This will start your stream data fresh.")) return;
+    
+    try {
+      const res = await fetch(`${serverUrl}/api/streamer/reset-donations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      if (res.ok) {
+        addToast("Recent donations cleared! Restarting stream data...", "success");
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        throw new Error("Failed to reset donations");
+      }
+    } catch (err) {
+      console.error("Reset failed:", err);
+      addToast("Failed to clear donations. Please try again.", "error");
+    }
+  };
 
   const copyOverlayPath = () => {
     navigator.clipboard.writeText(overlayUrl);
     addToast("Overlay URL copied to clipboard!", "success");
+  };
+
+  const copyTopOverlayPath = () => {
+    navigator.clipboard.writeText(topOverlayUrl);
+    addToast("Top 5 Overlay URL copied to clipboard!", "success");
   };
 
   const copyDonationPath = () => {
@@ -23,6 +64,7 @@ export default function DashboardClient({ user, stats, serverUrl, overlayUrl, do
       const res = await fetch(`${serverUrl}/api/streamer/test-alert`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
       });
       if (res.ok) {
         addToast("Test alert sent successfully!", "success");
@@ -48,6 +90,12 @@ export default function DashboardClient({ user, stats, serverUrl, overlayUrl, do
           </h1>
         </div>
         <div className="flex gap-3">
+          <button
+            onClick={resetDonations}
+            className="bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white text-red-500 px-6 py-3 rounded-xl font-bold transition-all shadow-sm"
+          >
+            Reset Stream
+          </button>
           <button
             onClick={sendTestAlert}
             disabled={isTesting}
@@ -89,19 +137,34 @@ export default function DashboardClient({ user, stats, serverUrl, overlayUrl, do
       </div>
 
       {/* Links Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* OBS Overlay */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Main OBS Overlay */}
         <div className="bg-linear-to-br from-orange-500/5 to-transparent border border-orange-500/20 p-8 rounded-[2rem] shadow-sm group">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-            <p className="text-sm text-orange-400 uppercase tracking-widest font-black">OBS Overlay URL</p>
+            <p className="text-sm text-orange-400 uppercase tracking-widest font-black">Main Alert Overlay</p>
           </div>
           <p className="text-sm text-text-muted font-mono truncate mb-6 bg-background/50 p-4 rounded-xl border border-surface-border">{overlayUrl}</p>
           <button
             onClick={copyOverlayPath}
             className="w-full bg-orange-500 hover:bg-orange-400 text-black text-sm font-black py-4 rounded-2xl uppercase tracking-widest transition-all hover:scale-[1.02] shadow-lg shadow-orange-500/20"
           >
-            Copy URL to Clipboard
+            Copy Alert URL
+          </button>
+        </div>
+
+        {/* Top 5 OBS Overlay */}
+        <div className="bg-linear-to-br from-yellow-500/5 to-transparent border border-yellow-500/20 p-8 rounded-[2rem] shadow-sm group">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+            <p className="text-sm text-yellow-500 uppercase tracking-widest font-black">Top 5 Overlay</p>
+          </div>
+          <p className="text-sm text-text-muted font-mono truncate mb-6 bg-background/50 p-4 rounded-xl border border-surface-border">{topOverlayUrl}</p>
+          <button
+            onClick={copyTopOverlayPath}
+            className="w-full bg-yellow-500 hover:bg-yellow-400 text-black text-sm font-black py-4 rounded-2xl uppercase tracking-widest transition-all hover:scale-[1.02] shadow-lg shadow-yellow-500/20"
+          >
+            Copy Top 5 URL
           </button>
         </div>
 
@@ -109,20 +172,29 @@ export default function DashboardClient({ user, stats, serverUrl, overlayUrl, do
         <div className="bg-surface border border-surface-border p-8 rounded-[2rem] shadow-sm group">
           <p className="text-sm text-text-muted uppercase tracking-widest font-bold mb-4 opacity-50">Public Donation Link</p>
           <p className="text-sm text-orange-400 font-mono truncate mb-6 bg-background/50 p-4 rounded-xl border border-surface-border">{donationUrl}</p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
               onClick={copyDonationPath}
               className="bg-background border border-surface-border hover:border-orange-500/30 text-sm text-text-muted hover:text-foreground font-bold py-4 rounded-2xl uppercase tracking-widest transition-all"
             >
               Copy Link
             </button>
-            <a
-              href={donationUrl}
-              target="_blank"
-              className="text-center bg-background border border-surface-border hover:border-orange-500/30 text-sm text-text-muted hover:text-orange-400 font-bold py-4 rounded-2xl uppercase tracking-widest transition-all"
+            <button
+              onClick={downloadQR}
+              className="bg-background border border-surface-border hover:border-orange-500/30 text-sm text-orange-500 hover:bg-orange-500 hover:text-black font-bold py-4 rounded-2xl uppercase tracking-widest transition-all"
             >
-              Preview
-            </a>
+              Download QR
+            </button>
+          </div>
+
+          {/* Hidden QR for Canvas */}
+          <div ref={qrRef} className="hidden">
+            <QRCodeCanvas 
+              value={donationUrl} 
+              size={512}
+              level={"H"}
+              includeMargin={true}
+            />
           </div>
         </div>
       </div>

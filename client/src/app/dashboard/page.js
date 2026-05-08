@@ -18,17 +18,22 @@ export default async function DashboardPage() {
   // 2. Fetch Profile Stats
   const { data: profile, error: pError } = await supabase
     .from("profiles")
-    .select("username, total_earnings")
+    .select("username, total_earnings, last_cleared_at")
     .eq("id", user.id)
     .single();
 
   // 3. Fetch Recent Donations
-  const { data: donations, error: dError } = await supabase
+  let query = supabase
     .from("donations")
     .select("*")
     .eq("streamer_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(10);
+    .order("created_at", { ascending: false });
+
+  if (profile?.last_cleared_at) {
+    query = query.gt("created_at", profile.last_cleared_at);
+  }
+
+  const { data: donations, error: dError } = await query.limit(10);
 
   // 4. Calculate unique supporters
   const uniqueSupporters = donations ? new Set(donations.map((d) => d.supporter_name)).size : 0;
@@ -46,6 +51,7 @@ export default async function DashboardPage() {
   };
 
   const overlayUrl = `${process.env.NEXT_PUBLIC_CLIENT_URL}/overlay/${streamerUser.username}`;
+  const topOverlayUrl = `${process.env.NEXT_PUBLIC_CLIENT_URL}/overlay/${streamerUser.username}/top`;
   const donationUrl = `${process.env.NEXT_PUBLIC_CLIENT_URL}/donate/${streamerUser.username}`;
 
   return (
@@ -54,6 +60,7 @@ export default async function DashboardPage() {
       stats={stats} 
       serverUrl={process.env.NEXT_PUBLIC_SERVER_URL} 
       overlayUrl={overlayUrl}
+      topOverlayUrl={topOverlayUrl}
       donationUrl={donationUrl}
     />
   );
