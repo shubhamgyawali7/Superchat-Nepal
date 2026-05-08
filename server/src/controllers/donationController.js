@@ -93,11 +93,11 @@ export const initiateDonation = async (req, res) => {
 };
 
 export const verifyEsewa = async (req, res) => {
-  const encodedData = req.query.data || req.body.data;
+  const encodedData = req.body.data;
   const io = req.io;
 
-  console.log("🔍 [ESEWA-VERIFY] Method:", req.method);
-  console.log("🔍 [ESEWA-VERIFY] Data Source:", req.query.data ? "QUERY" : req.body.data ? "BODY" : "NONE");
+  console.log("[ESEWA-VERIFY] Method:", req.method);
+  console.log("[ESEWA-VERIFY] Data Source:", req.query.data ? "QUERY" : req.body.data ? "BODY" : "NONE");
 
   if (!encodedData) {
     console.error("❌ [ESEWA-VERIFY] Missing data. Query:", req.query, "Body:", req.body);
@@ -146,9 +146,17 @@ export const verifyEsewa = async (req, res) => {
         amount: total_amount,
         transaction_uuid: transaction_uuid
       });
-
+      /**statusData =
+       *  {
+        product_code: 'EPAYTEST',
+        transaction_uuid: 'a7f2f8a1-18ff-4912-a4da-a3eec0a9c381',
+        total_amount: 500,
+        status: 'COMPLETE',
+        ref_id: '000F7O2'
+      }
+       * **/
       // Normalize and check against all known valid eSewa status values
-      const statusStr = (statusData.status || statusData?.data?.status || "").toUpperCase();
+      const statusStr = (statusData.status || "").toUpperCase();
       isComplete = ["COMPLETE", "SUCCESS", "COMPLETED"].includes(statusStr);
 
       console.log("🔍 [ESEWA] Status API result:", statusData.status, "| isComplete:", isComplete);
@@ -169,7 +177,7 @@ export const verifyEsewa = async (req, res) => {
         .from("donations")
         .update({
           status: "verified",
-          transaction_id: transaction_code || (statusData && statusData.transaction_id),
+          transaction_id: transaction_code || (statusData && statusData.transaction_uuid),
           gateway_response: statusData || decodedData,
         })
         .eq("id", transaction_uuid)

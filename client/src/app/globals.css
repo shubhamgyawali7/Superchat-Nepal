@@ -30,6 +30,9 @@
   --font-heading: var(--font-outfit);
 }
 
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   background: var(--background);
