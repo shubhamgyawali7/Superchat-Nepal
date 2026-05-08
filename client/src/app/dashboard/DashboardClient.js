@@ -40,18 +40,18 @@ export default function DashboardClient({ user, stats, serverUrl, overlayUrl, do
   return (
     <div className="text-foreground">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-7">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
-          <p className="text-[10px] text-text-muted uppercase tracking-widest mb-0.5">Dashboard</p>
-          <h1 className="text-xl font-bold text-foreground heading">
+          <p className="text-sm text-orange-500 font-bold uppercase tracking-[0.2em] mb-2">Creator Overview</p>
+          <h1 className="text-4xl font-heading font-black text-foreground tracking-tight">
             Namaste, {user?.username || "Streamer"} 🙏
           </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={sendTestAlert}
             disabled={isTesting}
-            className="text-xs border border-surface-border hover:border-orange-500/40 text-text-muted hover:text-orange-400 px-3 py-2 rounded transition-all disabled:opacity-50"
+            className="bg-surface border border-surface-border hover:border-orange-500/40 text-text-muted hover:text-orange-400 px-6 py-3 rounded-xl font-bold transition-all disabled:opacity-50 shadow-sm"
           >
             {isTesting ? "Sending..." : "Test Alert"}
           </button>
@@ -59,26 +59,29 @@ export default function DashboardClient({ user, stats, serverUrl, overlayUrl, do
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-        <div className="bg-surface border border-surface-border p-4 rounded-lg col-span-2">
-          <p className="text-[10px] text-text-muted uppercase tracking-widest mb-1">Total Earnings</p>
-          <p className="text-2xl font-bold text-foreground heading">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-surface border border-surface-border p-8 rounded-[2rem] md:col-span-2 shadow-sm hover:border-orange-500/10 transition-colors">
+          <p className="text-sm text-text-muted uppercase tracking-widest font-bold mb-3 opacity-50">Total Earnings</p>
+          <p className="text-5xl font-heading font-black text-foreground">
             रू {stats.totalEarnings.toLocaleString()}
           </p>
-          <p className="text-[10px] text-text-muted opacity-60 mt-1">NPR · All time</p>
+          <div className="mt-4 flex items-center gap-2">
+            <span className="text-xs bg-orange-500/10 text-orange-400 px-2 py-0.5 rounded-full font-bold">NPR</span>
+            <span className="text-xs text-text-muted font-medium opacity-60">All time revenue</span>
+          </div>
         </div>
-        <div className="bg-surface border border-surface-border p-4 rounded-lg">
-          <p className="text-[10px] text-text-muted uppercase tracking-widest mb-1">Supporters</p>
-          <p className="text-2xl font-bold text-foreground heading">{stats.recentSupporters}</p>
-          <p className="text-[10px] text-text-muted opacity-60 mt-1">Last 24h</p>
+        <div className="bg-surface border border-surface-border p-8 rounded-[2rem] shadow-sm hover:border-orange-500/10 transition-colors">
+          <p className="text-sm text-text-muted uppercase tracking-widest font-bold mb-3 opacity-50">Supporters</p>
+          <p className="text-5xl font-heading font-black text-foreground">{stats.recentSupporters}</p>
+          <p className="text-xs text-text-muted font-medium opacity-60 mt-4">Last 24 hours</p>
         </div>
-        <div className="bg-surface border border-surface-border p-4 rounded-lg flex flex-col justify-between">
-          <p className="text-[10px] text-text-muted uppercase tracking-widest mb-2">Withdraw</p>
-          <div className="space-y-1.5">
-            <button className="w-full bg-background border border-surface-border hover:border-orange-500/30 text-xs py-1.5 rounded transition-all text-text-muted hover:text-orange-400">
+        <div className="bg-surface border border-surface-border p-8 rounded-[2rem] shadow-sm flex flex-col justify-between hover:border-orange-500/10 transition-colors">
+          <p className="text-sm text-text-muted uppercase tracking-widest font-bold mb-4 opacity-50">Withdraw</p>
+          <div className="space-y-3">
+            <button className="w-full bg-background border border-surface-border hover:border-orange-500/30 text-sm font-bold py-3 rounded-xl transition-all text-text-muted hover:text-orange-400">
               eSewa
             </button>
-            <button className="w-full bg-background border border-surface-border hover:border-orange-500/30 text-xs py-1.5 rounded transition-all text-text-muted hover:text-orange-400">
+            <button className="w-full bg-background border border-surface-border hover:border-orange-500/30 text-sm font-bold py-3 rounded-xl transition-all text-text-muted hover:text-orange-400">
               Khalti
             </button>
           </div>
@@ -86,39 +89,37 @@ export default function DashboardClient({ user, stats, serverUrl, overlayUrl, do
       </div>
 
       {/* Links Row */}
-      <div className="grid md:grid-cols-2 gap-3 mb-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* OBS Overlay */}
-        <div className="bg-surface border border-orange-500/20 p-4 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
-            <p className="text-[10px] text-orange-400 uppercase tracking-widest font-bold">OBS Overlay URL</p>
+        <div className="bg-linear-to-br from-orange-500/5 to-transparent border border-orange-500/20 p-8 rounded-[2rem] shadow-sm group">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+            <p className="text-sm text-orange-400 uppercase tracking-widest font-black">OBS Overlay URL</p>
           </div>
-          <p className="text-xs text-text-muted font-mono truncate mb-3">{overlayUrl}</p>
-          <div className="flex gap-2">
-            <button
-              onClick={copyOverlayPath}
-              className="flex-1 bg-orange-500 hover:bg-orange-400 text-black text-xs font-bold py-1.5 rounded uppercase tracking-wide transition-all"
-            >
-              Copy URL
-            </button>
-          </div>
+          <p className="text-sm text-text-muted font-mono truncate mb-6 bg-background/50 p-4 rounded-xl border border-surface-border">{overlayUrl}</p>
+          <button
+            onClick={copyOverlayPath}
+            className="w-full bg-orange-500 hover:bg-orange-400 text-black text-sm font-black py-4 rounded-2xl uppercase tracking-widest transition-all hover:scale-[1.02] shadow-lg shadow-orange-500/20"
+          >
+            Copy URL to Clipboard
+          </button>
         </div>
 
         {/* Donation Link */}
-        <div className="bg-surface border border-surface-border p-4 rounded-lg">
-          <p className="text-[10px] text-text-muted uppercase tracking-widest mb-2">Public Donation Link</p>
-          <p className="text-xs text-orange-400 font-mono truncate mb-3">{donationUrl}</p>
-          <div className="flex gap-2">
+        <div className="bg-surface border border-surface-border p-8 rounded-[2rem] shadow-sm group">
+          <p className="text-sm text-text-muted uppercase tracking-widest font-bold mb-4 opacity-50">Public Donation Link</p>
+          <p className="text-sm text-orange-400 font-mono truncate mb-6 bg-background/50 p-4 rounded-xl border border-surface-border">{donationUrl}</p>
+          <div className="grid grid-cols-2 gap-4">
             <button
               onClick={copyDonationPath}
-              className="flex-1 bg-background border border-surface-border hover:border-orange-500/30 text-xs text-text-muted hover:text-foreground py-1.5 rounded uppercase tracking-wide transition-all"
+              className="bg-background border border-surface-border hover:border-orange-500/30 text-sm text-text-muted hover:text-foreground font-bold py-4 rounded-2xl uppercase tracking-widest transition-all"
             >
               Copy Link
             </button>
             <a
               href={donationUrl}
               target="_blank"
-              className="px-3 bg-background border border-surface-border hover:border-orange-500/30 text-xs text-text-muted hover:text-orange-400 py-1.5 rounded uppercase tracking-wide transition-all"
+              className="text-center bg-background border border-surface-border hover:border-orange-500/30 text-sm text-text-muted hover:text-orange-400 font-bold py-4 rounded-2xl uppercase tracking-widest transition-all"
             >
               Preview
             </a>
@@ -127,33 +128,35 @@ export default function DashboardClient({ user, stats, serverUrl, overlayUrl, do
       </div>
 
       {/* Donations Table */}
-      <div className="bg-surface border border-surface-border rounded-lg overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-surface-border flex items-center justify-between">
-          <p className="text-xs font-bold uppercase tracking-widest heading">Recent Donations</p>
-          <button className="text-[10px] text-orange-500/70 hover:text-orange-400 uppercase tracking-widest transition-colors">
-            View All →
+      <div className="bg-surface border border-surface-border rounded-[2.5rem] overflow-hidden shadow-sm">
+        <div className="px-8 py-6 border-b border-surface-border flex items-center justify-between">
+          <p className="text-lg font-heading font-black uppercase tracking-tight">Recent Donations</p>
+          <button className="text-sm text-orange-500 font-bold hover:text-orange-400 transition-colors flex items-center gap-2 group">
+            View All History <span className="transition-transform group-hover:translate-x-1">→</span>
           </button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-surface-border">
+              <tr className="border-b border-surface-border bg-foreground/[0.02]">
                 {["Supporter", "Amount", "Message", "Status"].map(h => (
-                  <th key={h} className="px-5 py-3 text-[10px] text-text-muted uppercase tracking-widest font-medium">{h}</th>
+                  <th key={h} className="px-8 py-5 text-xs text-text-muted uppercase tracking-widest font-black opacity-50">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-surface-border">
               {stats.recentDonations.length > 0 ? (
                 stats.recentDonations.map((d) => (
-                  <tr key={d.id} className="border-b border-surface-border hover:bg-foreground/5 transition-colors">
-                    <td className="px-5 py-3 text-sm font-bold">{d.supporter_name}</td>
-                    <td className="px-5 py-3 text-sm text-orange-500 font-bold">रू {d.amount}</td>
-                    <td className="px-5 py-3 text-xs text-text-muted italic max-w-[200px] truncate">"{d.message}"</td>
-                    <td className="px-5 py-3">
-                      <span className={`text-[10px] px-2 py-0.5 rounded uppercase tracking-wide font-bold ${d.status === "verified"
-                          ? "bg-emerald-500/10 text-emerald-500"
-                          : "bg-amber-500/10 text-amber-500"
+                  <tr key={d.id} className="hover:bg-foreground/[0.02] transition-colors">
+                    <td className="px-8 py-6 text-base font-bold text-foreground">{d.supporter_name}</td>
+                    <td className="px-8 py-6 text-base text-orange-500 font-black">रू {d.amount}</td>
+                    <td className="px-8 py-6 text-sm text-text-muted font-medium italic opacity-70">
+                      <div className="max-w-[300px] truncate">"{d.message}"</div>
+                    </td>
+                    <td className="px-8 py-6">
+                      <span className={`text-xs px-3 py-1 rounded-full uppercase tracking-widest font-black ${d.status === "verified"
+                          ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                          : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
                         }`}>
                         {d.status}
                       </span>
@@ -162,7 +165,7 @@ export default function DashboardClient({ user, stats, serverUrl, overlayUrl, do
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="px-5 py-10 text-center text-xs text-text-muted">
+                  <td colSpan="4" className="px-8 py-16 text-center text-sm text-text-muted font-medium">
                     No donations yet. Keep streaming! 🚀
                   </td>
                 </tr>
@@ -173,5 +176,4 @@ export default function DashboardClient({ user, stats, serverUrl, overlayUrl, do
       </div>
     </div>
   );
-
 }

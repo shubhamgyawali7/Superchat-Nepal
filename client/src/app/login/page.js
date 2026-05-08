@@ -29,63 +29,62 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4" style={{ fontFamily: "'DM Mono', monospace" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');
-        .input-field { transition: border-color 0.15s; }
-        .input-field:focus { border-color: #f97316; outline: none; }
-        .btn-submit { transition: background 0.15s, transform 0.1s; }
-        .btn-submit:active { transform: scale(0.98); }
-      `}</style>
+    <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center px-4 font-sans selection:bg-orange-500/30">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-0 w-[50%] h-[50%] rounded-full blur-[150px] opacity-10 bg-orange-500/20 animate-pulse"></div>
+        <div className="absolute bottom-0 right-0 w-[40%] h-[40%] rounded-full blur-[120px] opacity-5 bg-orange-500/10"></div>
+      </div>
 
-      <div className="w-full max-w-sm">
+      <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 mb-8 justify-center">
-          <div className="w-5 h-5 bg-orange-500 rounded-sm" />
-          <span className="text-xs font-bold tracking-widest uppercase text-slate-300" style={{ fontFamily: "'Syne', sans-serif" }}>
+        <Link href="/" className="flex items-center gap-4 mb-12 justify-center group">
+          <div className="w-8 h-8 bg-orange-500 rounded-lg shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform" />
+          <span className="text-xl font-heading font-black tracking-tight uppercase">
             Superchat Nepal
           </span>
         </Link>
 
-        <div className="bg-[#111] border border-white/8 rounded-lg p-7">
-          <h2 className="text-lg font-bold mb-1 uppercase tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-            Welcome Back
-          </h2>
-          <p className="text-xs text-slate-500 mb-6">Sign in to manage your stream alerts</p>
+        <div className="bg-white/[0.03] backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-10 sm:p-12 shadow-2xl">
+          <div className="mb-10">
+            <h2 className="text-3xl font-heading font-black mb-3 uppercase tracking-tight">
+              Welcome Back
+            </h2>
+            <p className="text-base text-text-muted font-medium opacity-60 leading-relaxed">Sign in to manage your stream alerts and donations.</p>
+          </div>
 
           {(error || authError) && (
-            <div className="mb-5 p-3 bg-red-500/8 border border-red-500/20 rounded text-xs text-red-400">
+            <div className="mb-8 p-5 bg-red-500/10 border border-red-500/20 rounded-2xl text-sm font-bold text-red-400 animate-in fade-in slide-in-from-top-2">
               {error || authError}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
-                Email
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="group/input">
+              <label className="block text-xs font-black text-text-muted uppercase tracking-[0.2em] mb-3 ml-4 opacity-50">
+                Email Address
               </label>
               <input
                 type="email"
                 required
-                className="input-field w-full bg-[#0a0a0a] border border-white/10 rounded px-3 py-2.5 text-sm text-white placeholder-slate-600"
+                className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 text-base font-bold text-white placeholder-white/10 outline-none focus:border-orange-500/30 focus:bg-white/[0.08] transition-all"
                 placeholder="you@example.com"
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
             </div>
 
-            <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            <div className="group/input">
+              <div className="flex justify-between items-center mb-3 ml-4 mr-4">
+                <label className="block text-xs font-black text-text-muted uppercase tracking-[0.2em] opacity-50">
                   Password
                 </label>
-                <Link href="/forgot-password" className="text-[10px] text-orange-500/70 hover:text-orange-400">
+                <Link href="/forgot-password" alt="Forgot Password" title="Forgot Password" className="text-xs font-black text-orange-500/70 hover:text-orange-400 uppercase tracking-widest transition-colors">
                   Forgot?
                 </Link>
               </div>
               <input
                 type="password"
                 required
-                className="input-field w-full bg-[#0a0a0a] border border-white/10 rounded px-3 py-2.5 text-sm text-white placeholder-slate-600"
+                className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 text-base font-bold text-white placeholder-white/10 outline-none focus:border-orange-500/30 focus:bg-white/[0.08] transition-all"
                 placeholder="••••••••"
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
@@ -94,24 +93,25 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="btn-submit w-full bg-orange-500 hover:bg-orange-400 text-black text-sm font-bold py-2.5 rounded uppercase tracking-wide disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+              className="group/btn w-full h-16 bg-orange-500 hover:bg-orange-400 text-black text-base font-black rounded-2xl uppercase tracking-[0.15em] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-orange-500/20 relative overflow-hidden"
             >
-              {isLoading ? "Signing in..." : "Sign In →"}
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500"></div>
+              <span className="relative z-10">{isLoading ? "Signing in..." : "Sign In →"}</span>
             </button>
           </form>
 
-          <div className="border-t border-white/5 mt-6 pt-5 text-center">
-            <p className="text-xs text-slate-500">
-              No account?{" "}
-              <Link href="/register" className="text-orange-400 hover:text-orange-300 font-bold">
+          <div className="border-t border-white/5 mt-10 pt-8 text-center">
+            <p className="text-sm text-text-muted font-bold tracking-wide">
+              New to Superchat?{" "}
+              <Link href="/register" alt="Register free" title="Register free" className="text-orange-500 hover:text-orange-400 font-black uppercase tracking-widest ml-2 transition-colors">
                 Register free
               </Link>
             </p>
           </div>
         </div>
 
-        <p className="text-center text-[10px] text-slate-700 mt-6 uppercase tracking-widest">
-          Secure · Encrypted · Nepal-built
+        <p className="text-center text-[11px] font-black text-text-muted/30 mt-10 uppercase tracking-[0.4em]">
+          Secure · Encrypted · Built for Nepal
         </p>
       </div>
     </div>
