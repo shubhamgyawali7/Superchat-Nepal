@@ -17,6 +17,9 @@ const outfit = Outfit({
 export const metadata = {
   title: "Superchat Nepal",
   description: "Donation platform for Nepali streamers",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 

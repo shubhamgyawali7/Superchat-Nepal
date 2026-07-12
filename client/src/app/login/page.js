@@ -38,7 +38,8 @@ export default function LoginPage() {
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-4 mb-12 justify-center group">
-          <div className="w-8 h-8 bg-orange-500 rounded-lg shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Superchat Nepal" className="w-8 h-8 rounded-lg shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform" />
           <span className="text-xl font-heading font-black tracking-tight uppercase">
             Superchat Nepal
           </span>
@@ -73,13 +74,10 @@ export default function LoginPage() {
             </div>
 
             <div className="group/input">
-              <div className="flex justify-between items-center mb-3 ml-4 mr-4">
+              <div className="flex justify-end items-center mb-3 ml-4 mr-4">
                 <label className="block text-xs font-black text-text-muted uppercase tracking-[0.2em] opacity-50">
                   Password
                 </label>
-                <Link href="/forgot-password" alt="Forgot Password" title="Forgot Password" className="text-xs font-black text-orange-500/70 hover:text-orange-400 uppercase tracking-widest transition-colors">
-                  Forgot?
-                </Link>
               </div>
               <input
                 type="password"

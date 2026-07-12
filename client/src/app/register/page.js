@@ -44,7 +44,8 @@ export default function RegisterPage() {
       </div>
 
       <Link href="/" className="flex items-center gap-4 mb-12 group">
-        <div className="w-8 h-8 bg-orange-500 rounded-lg shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.png" alt="Superchat Nepal" className="w-8 h-8 rounded-lg shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform" />
         <span className="text-xl font-heading font-black tracking-tight uppercase">
           Superchat Nepal
         </span>

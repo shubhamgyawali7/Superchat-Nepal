@@ -16,9 +16,8 @@ export default async function LandingPage() {
       <nav className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/5 bg-[#020617]/50">
         <div className="max-w-[1200px] mx-auto px-5 py-5 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-8 h-8 bg-orange-500 rounded-lg shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform flex items-center justify-center font-black text-black text-sm">
-              SN
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="Superchat Nepal" className="w-8 h-8 rounded-lg shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform" />
             <span className="text-xl font-heading font-black tracking-tight uppercase">
               Superchat <span className="text-orange-500">Nepal</span>
             </span>
@@ -127,7 +126,8 @@ export default async function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
             <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-orange-500 rounded-md" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo.png" alt="Superchat Nepal" className="w-6 h-6 rounded-md" />
                 <span className="text-lg font-heading font-black tracking-tight uppercase">SN</span>
               </div>
               <p className="text-sm text-white/40 font-medium leading-relaxed max-w-xs">

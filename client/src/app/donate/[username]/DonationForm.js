@@ -53,6 +53,11 @@ export default function DonationForm({ streamer, serverUrl }) {
 
     setIsLoading(true);
     try {
+      if (paymentMethod === "khalti") {
+        router.push("/donate/khalti-coming-soon");
+        return;
+      }
+
       const response = await fetch(`${serverUrl}/api/donations/initiate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
