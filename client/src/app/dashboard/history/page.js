@@ -77,7 +77,7 @@ export default async function HistoryPage() {
                       {item.status}
                     </span>
                   </td>
-                  <td className="px-5 py-3 text-xs text-text-muted max-w-[160px] truncate italic">"{item.message}"</td>
+                  <td className="px-5 py-3 text-xs text-text-muted max-w-[160px] truncate italic">&quot;{item.message}&quot;</td>
                 </tr>
               ))
             ) : (

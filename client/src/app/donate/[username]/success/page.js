@@ -1,11 +1,12 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 
-export default function DonateSuccessPage() {
-  const [status, setStatus] = useState("checking"); // checking | completed | failed
+function DonateSuccessContent() {
+  const [status, setStatus] = useState("checking");
   const [errorMsg, setErrorMsg] = useState("");
-  const [donateData, setDonateData] = useState("");
+  const [donateData, setDonateData] = useState(null);
+  const [transactionRef] = useState(() => Math.random().toString(36).substring(7).toUpperCase());
   const router = useRouter();
   const searchParams = useSearchParams();
   const params = useParams();
@@ -37,15 +38,6 @@ export default function DonateSuccessPage() {
         );
         if (response.ok) {
           const result = await response.json();
-          /** result = {
-           * success: true,
-                message: "Donation verified and alert triggered",
-                donation: {
-                  name: donation.supporter_name,
-                  amount: donation.amount,
-                  streamer: streamerUsername
-                }
-           * **/
           if (result.success) {
             setDonateData(result.donation);
             setStatus("completed");
@@ -140,7 +132,6 @@ export default function DonateSuccessPage() {
 
   return (
     <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center p-6 selection:bg-orange-500/30">
-      {/* Background Orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full blur-[180px] opacity-20 animate-pulse bg-emerald-500/30"></div>
       </div>
@@ -193,9 +184,21 @@ export default function DonateSuccessPage() {
         </div>
 
         <p className="text-[11px] font-black text-text-muted/30 uppercase tracking-[0.4em] pt-8">
-          Transaction Reference: {Math.random().toString(36).substring(7).toUpperCase()}
+          Transaction Reference: {transactionRef}
         </p>
       </div>
     </div>
+  );
+}
+
+export default function DonateSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center p-6">
+        <div className="w-20 h-20 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin mx-auto shadow-2xl"></div>
+      </div>
+    }>
+      <DonateSuccessContent />
+    </Suspense>
   );
 }

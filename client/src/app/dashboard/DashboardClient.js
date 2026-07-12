@@ -223,7 +223,7 @@ export default function DashboardClient({ user, stats, serverUrl, overlayUrl, to
                     <td className="px-8 py-6 text-base font-bold text-foreground">{d.supporter_name}</td>
                     <td className="px-8 py-6 text-base text-orange-500 font-black">रू {d.amount}</td>
                     <td className="px-8 py-6 text-sm text-text-muted font-medium italic opacity-70">
-                      <div className="max-w-[300px] truncate">"{d.message}"</div>
+                      <div className="max-w-[300px] truncate">&quot;{d.message}&quot;</div>
                     </td>
                     <td className="px-8 py-6">
                       <span className={`text-xs px-3 py-1 rounded-full uppercase tracking-widest font-black ${d.status === "verified"

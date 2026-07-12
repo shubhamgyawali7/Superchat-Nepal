@@ -6,10 +6,12 @@ import { useToast } from "@/hooks/useToast";
 
 export function useSocket(streamerUsername = null) {
   const [isConnected, setIsConnected] = useState(false);
-  const [connectionAttempt, setConnectionAttempt] = useState(0);
   const socketRef = useRef(null);
+  const connectionAttemptRef = useRef(0);
   const addAlert = useAlertStore((s) => s.addAlert);
   const { addToast } = useToast();
+
+  const getSocket = useCallback(() => socketRef.current, []);
 
   const connect = useCallback(() => {
     if (socketRef.current?.connected) return;
@@ -24,18 +26,18 @@ export function useSocket(streamerUsername = null) {
     });
 
     socket.on("connect", () => {
-      console.log("🟢 Socket connected:", socket.id);
+      console.log("Socket connected:", socket.id);
       setIsConnected(true);
-      setConnectionAttempt(0);
-      
+      connectionAttemptRef.current = 0;
+
       if (streamerUsername) {
         socket.emit("join-streamer", streamerUsername);
-        console.log(`📡 Joined room: ${streamerUsername}`);
+        console.log(`Joined room: ${streamerUsername}`);
       }
     });
 
     socket.on("disconnect", (reason) => {
-      console.log("🔴 Socket disconnected:", reason);
+      console.log("Socket disconnected:", reason);
       setIsConnected(false);
       if (reason === "io server disconnect") {
         socket.connect();
@@ -43,20 +45,20 @@ export function useSocket(streamerUsername = null) {
     });
 
     socket.on("connect_error", (err) => {
-      setConnectionAttempt(prev => prev + 1);
+      connectionAttemptRef.current += 1;
       console.error("Socket connection error:", err.message);
-      if (connectionAttempt === 5) {
+      if (connectionAttemptRef.current === 5) {
         addToast("Connection issues detected. Trying to reconnect...", "warning");
       }
     });
 
     socket.on("new-donation", (donationData) => {
-      console.log("💸 New donation received:", donationData);
+      console.log("New donation received:", donationData);
       addAlert(donationData);
     });
 
     socketRef.current = socket;
-  }, [streamerUsername, addAlert, addToast, connectionAttempt]);
+  }, [streamerUsername, addAlert, addToast]);
 
   useEffect(() => {
     connect();
@@ -70,10 +72,9 @@ export function useSocket(streamerUsername = null) {
   }, [connect]);
 
   return {
-    socket: socketRef.current,
+    getSocket,
     isConnected,
-    connectionAttempt
   };
 }
 
-export default useSocket;
+export default useSocket;

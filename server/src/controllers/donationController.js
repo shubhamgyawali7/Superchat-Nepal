@@ -1,6 +1,15 @@
 import { generateEsewaSignature, verifyEsewaStatus, ESEWA_PRODUCT_CODE } from "../utils/esewa.js";
 import { createAdminClient } from "../config/supabase.js";
 
+function sanitize(str) {
+  if (!str || typeof str !== "string") return "";
+  return str.replace(/<[^>]*>/g, "").trim().slice(0, 500);
+}
+
+function sanitizeName(str) {
+  if (!str || typeof str !== "string") return "Anonymous Supporter";
+  return str.replace(/<[^>]*>/g, "").trim().slice(0, 50) || "Anonymous Supporter";
+}
 
 export const initiateDonation = async (req, res) => {
   const {
@@ -11,6 +20,18 @@ export const initiateDonation = async (req, res) => {
     gateway,
   } = req.body;
   const supabase = req.supabase;
+
+  if (!streamerUsername || typeof streamerUsername !== "string") {
+    return res.status(400).json({ error: "Streamer username is required." });
+  }
+
+  const parsedAmount = parseFloat(amount);
+  if (isNaN(parsedAmount) || parsedAmount < 10 || parsedAmount > 100000) {
+    return res.status(400).json({ error: "Amount must be between Rs. 10 and Rs. 1,00,000." });
+  }
+
+  const validGateways = ["esewa", "khalti"];
+  const selectedGateway = validGateways.includes(gateway) ? gateway : "esewa";
 
   try {
     // 1. Find streamer
@@ -31,10 +52,10 @@ export const initiateDonation = async (req, res) => {
       .insert([
         {
           streamer_id: profile.id,
-          supporter_name: senderName || "Anonymous Supporter",
-          amount: parseFloat(amount),
-          message: donorMessage || "No message",
-          payment_gateway: gateway || "esewa",
+          supporter_name: sanitizeName(senderName),
+          amount: parsedAmount,
+          message: sanitize(donorMessage) || "No message",
+          payment_gateway: selectedGateway,
           status: "pending",
         },
       ])
@@ -45,9 +66,9 @@ export const initiateDonation = async (req, res) => {
 
     let paymentData = null;
 
-    if (gateway === "esewa") {
+    if (selectedGateway === "esewa") {
       const donationId = donation.id;
-      const amountNum = Math.floor(parseFloat(amount));
+      const amountNum = Math.floor(parsedAmount);
 
       const ESEWA_FORM_URL = process.env.ESEWA_FORM_URL || "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
 
@@ -93,14 +114,14 @@ export const initiateDonation = async (req, res) => {
 };
 
 export const verifyEsewa = async (req, res) => {
-  const encodedData = req.body.data;
+  const encodedData = req.body?.data || req.query?.data;
   const io = req.io;
 
   console.log("[ESEWA-VERIFY] Method:", req.method);
-  console.log("[ESEWA-VERIFY] Data Source:", req.query.data ? "QUERY" : req.body.data ? "BODY" : "NONE");
+  console.log("[ESEWA-VERIFY] Data Source:", req.query.data ? "QUERY" : req.body?.data ? "BODY" : "NONE");
 
   if (!encodedData) {
-    console.error("❌ [ESEWA-VERIFY] Missing data. Query:", req.query, "Body:", req.body);
+    console.error("[ESEWA-VERIFY] Missing data. Query:", req.query, "Body:", req.body);
     return res.status(400).json({ error: "Invalid eSewa data" });
   }
 
@@ -108,14 +129,14 @@ export const verifyEsewa = async (req, res) => {
     // 1. Decode eSewa data
     const decodedBuffer = Buffer.from(encodedData, "base64");
     const decodedString = decodedBuffer.toString("utf-8");
-    console.log("🔍 [ESEWA-VERIFY] Decoded string:", decodedString);
+    console.log("[ESEWA-VERIFY] Decoded string:", decodedString);
 
     const decodedData = JSON.parse(decodedString);
 
     // 2. Extract transaction details
     const { transaction_uuid, status, total_amount, transaction_code, signature, signed_field_names } = decodedData;
 
-    console.log("🔍 [ESEWA] Verifying Transaction:", {
+    console.log("[ESEWA] Verifying Transaction:", {
       transaction_uuid,
       total_amount,
       transaction_code,
@@ -133,7 +154,7 @@ export const verifyEsewa = async (req, res) => {
       .single();
 
     if (existingDonation?.status === "verified") {
-      console.log("⚠️ [ESEWA] Payment already verified");
+      console.log("[ESEWA] Payment already verified");
       return res.status(200).json({ success: true, message: "Already verified" });
     }
 
@@ -159,13 +180,13 @@ export const verifyEsewa = async (req, res) => {
       const statusStr = (statusData.status || "").toUpperCase();
       isComplete = ["COMPLETE", "SUCCESS", "COMPLETED"].includes(statusStr);
 
-      console.log("🔍 [ESEWA] Status API result:", statusData.status, "| isComplete:", isComplete);
+      console.log("[ESEWA] Status API result:", statusData.status, "| isComplete:", isComplete);
     } catch (apiError) {
       // Fallback: If the status API is unreachable (common in eSewa test environment),
       // trust the callback data if the status says COMPLETE and we have a transaction_code
-      console.warn("⚠️ [ESEWA] Status API failed, falling back to callback data:", apiError.message);
+      console.warn("[ESEWA] Status API failed, falling back to callback data:", apiError.message);
       if (status === "COMPLETE" && transaction_code) {
-        console.log("✅ [ESEWA] Callback data indicates COMPLETE — proceeding with verification");
+        console.log("[ESEWA] Callback data indicates COMPLETE - proceeding with verification");
         isComplete = true;
         statusData = { status: "COMPLETE", source: "callback_fallback" };
       }
@@ -185,7 +206,7 @@ export const verifyEsewa = async (req, res) => {
         .single();
 
       if (error) {
-        console.error("❌ [ESEWA] Supabase update error:", error);
+        console.error("[ESEWA] Supabase update error:", error);
         throw error;
       }
 
@@ -197,7 +218,7 @@ export const verifyEsewa = async (req, res) => {
           amount: donation.amount,
           message: donation.message,
         });
-        console.log("✅ [ESEWA] Alert emitted to room:", streamerUsername);
+        console.log("[ESEWA] Alert emitted to room:", streamerUsername);
       }
 
       // 6. Return success JSON
@@ -212,10 +233,10 @@ export const verifyEsewa = async (req, res) => {
       });
     }
 
-    console.error("❌ [ESEWA] Payment not complete. Status:", statusData?.status);
+    console.error("[ESEWA] Payment not complete. Status:", statusData?.status);
     res.status(400).json({ success: false, message: `Payment status: ${statusData?.status || "UNKNOWN"}` });
   } catch (err) {
-    console.error("❌ [ESEWA] Verification Error:", err.message, err.stack);
+    console.error("[ESEWA] Verification Error:", err.message, err.stack);
     res.status(500).json({ error: "Verification failed", details: err.message });
   }
 };

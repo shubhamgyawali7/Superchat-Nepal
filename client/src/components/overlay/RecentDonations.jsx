@@ -1,17 +1,27 @@
 "use client";
 import React from "react";
 
-export default function RecentDonations({ donations, themeColor }) {
+const POSITION_CLASSES = {
+  "bottom-left": "fixed bottom-10 left-10",
+  "bottom-right": "fixed bottom-10 right-10",
+  "top-left": "fixed top-10 left-10",
+  "top-right": "fixed top-10 right-10",
+};
+
+export default function RecentDonations({ donations, themeColor, position = "bottom-left", fontFamily }) {
   if (!donations || donations.length === 0) return null;
 
   return (
-    <div className="fixed bottom-10 left-10 w-80 space-y-3 z-30" style={{ fontFamily: 'var(--font-inter), sans-serif' }}>
+    <div
+      className={`${POSITION_CLASSES[position] || POSITION_CLASSES["bottom-left"]} w-80 space-y-3 z-30`}
+      style={{ fontFamily }}
+    >
       <p className="text-xs font-black uppercase tracking-[0.3em] mb-4" style={{ color: themeColor }}>
         Recent Supporters
       </p>
       <div className="space-y-2">
-        {donations.slice(0, 5).map((d, i) => (
-          <div 
+        {donations.map((d, i) => (
+          <div
             key={d.id || i}
             className="flex items-center gap-4 bg-black/60 backdrop-blur-xl border-l-4 p-3 rounded-r-xl animate-slide-in"
             style={{ borderColor: themeColor, animationDelay: `${i * 100}ms` }}

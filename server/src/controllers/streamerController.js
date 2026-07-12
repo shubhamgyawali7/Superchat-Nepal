@@ -6,7 +6,7 @@ export const getPublicProfile = async (req, res) => {
     const { data: profile, error } = await supabase
       .from("profiles")
       .select(
-        "display_name, theme_color, welcome_title, welcome_sub, youtube_url, facebook_url, upi_id, bio, avatar_url, alert_min_amount, alert_duration, last_cleared_at"
+        "display_name, theme_color, welcome_title, welcome_sub, youtube_url, facebook_url, upi_id, bio, avatar_url, alert_min_amount, alert_duration, last_cleared_at, alert_gif_url, alert_font_family, alert_text_color, alert_amount_color, alert_message_color, alert_bg_color, alert_border_color, alert_position, alert_animation, tts_enabled, tts_rate, recent_donations_position, recent_donations_count"
       )
       .eq("username", username)
       .single();
@@ -81,24 +81,73 @@ export const updateProfile = async (req, res) => {
     avatar_url,
     alert_min_amount,
     alert_duration,
+    alert_gif_url,
+    alert_font_family,
+    alert_text_color,
+    alert_amount_color,
+    alert_message_color,
+    alert_bg_color,
+    alert_border_color,
+    alert_position,
+    alert_animation,
+    tts_enabled,
+    tts_rate,
+    recent_donations_position,
+    recent_donations_count,
   } = req.body;
+
+  // Sanitize string inputs
+  const sanitize = (str, maxLen = 200) => {
+    if (!str || typeof str !== "string") return null;
+    return str.replace(/<[^>]*>/g, "").trim().slice(0, maxLen) || null;
+  };
+
+  const updates = {};
+  if (display_name !== undefined) updates.display_name = sanitize(display_name, 100);
+  if (theme_color !== undefined && typeof theme_color === "string") updates.theme_color = theme_color.slice(0, 20);
+  if (welcome_title !== undefined) updates.welcome_title = sanitize(welcome_title, 150);
+  if (welcome_sub !== undefined) updates.welcome_sub = sanitize(welcome_sub, 300);
+  if (youtube_url !== undefined) updates.youtube_url = sanitize(youtube_url, 500);
+  if (facebook_url !== undefined) updates.facebook_url = sanitize(facebook_url, 500);
+  if (upi_id !== undefined) updates.upi_id = sanitize(upi_id, 50);
+  if (bio !== undefined) updates.bio = sanitize(bio, 500);
+  if (avatar_url !== undefined) updates.avatar_url = sanitize(avatar_url, 500);
+  if (alert_min_amount !== undefined) {
+    const val = parseFloat(alert_min_amount);
+    updates.alert_min_amount = isNaN(val) ? 0 : Math.max(0, val);
+  }
+  if (alert_duration !== undefined) {
+    const val = parseInt(alert_duration, 10);
+    updates.alert_duration = isNaN(val) ? 5 : Math.max(1, Math.min(60, val));
+  }
+  if (alert_gif_url !== undefined) updates.alert_gif_url = typeof alert_gif_url === "string" ? alert_gif_url.slice(0, 5000000) : null;
+  if (alert_font_family !== undefined) updates.alert_font_family = sanitize(alert_font_family, 100);
+  if (alert_text_color !== undefined && typeof alert_text_color === "string") updates.alert_text_color = alert_text_color.slice(0, 30);
+  if (alert_amount_color !== undefined && typeof alert_amount_color === "string") updates.alert_amount_color = alert_amount_color.slice(0, 30);
+  if (alert_message_color !== undefined && typeof alert_message_color === "string") updates.alert_message_color = alert_message_color.slice(0, 30);
+  if (alert_bg_color !== undefined && typeof alert_bg_color === "string") updates.alert_bg_color = alert_bg_color.slice(0, 50);
+  if (alert_border_color !== undefined && typeof alert_border_color === "string") updates.alert_border_color = alert_border_color.slice(0, 30);
+  if (alert_position !== undefined && typeof alert_position === "string") updates.alert_position = ["top", "center", "bottom"].includes(alert_position) ? alert_position : "top";
+  if (alert_animation !== undefined && typeof alert_animation === "string") updates.alert_animation = ["slide", "bounce", "fade", "zoom"].includes(alert_animation) ? alert_animation : "slide";
+  if (tts_enabled !== undefined) updates.tts_enabled = !!tts_enabled;
+  if (tts_rate !== undefined) {
+    const val = parseFloat(tts_rate);
+    updates.tts_rate = isNaN(val) ? 0.9 : Math.max(0.1, Math.min(2, val));
+  }
+  if (recent_donations_position !== undefined && typeof recent_donations_position === "string") updates.recent_donations_position = sanitize(recent_donations_position, 30);
+  if (recent_donations_count !== undefined) {
+    const val = parseInt(recent_donations_count, 10);
+    updates.recent_donations_count = isNaN(val) ? 5 : Math.max(0, Math.min(10, val));
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ error: "No valid fields to update" });
+  }
 
   try {
     const { data, error } = await supabase
       .from("profiles")
-      .update({
-        display_name,
-        theme_color,
-        welcome_title,
-        welcome_sub,
-        youtube_url,
-        facebook_url,
-        upi_id,
-        bio,
-        avatar_url,
-        alert_min_amount,
-        alert_duration,
-      })
+      .update(updates)
       .eq("id", user.id)
       .select()
       .single();

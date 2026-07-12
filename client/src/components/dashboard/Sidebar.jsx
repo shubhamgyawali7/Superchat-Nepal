@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,11 +18,6 @@ export default function Sidebar() {
   const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
-
-  // Close sidebar on route change (mobile)
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
 
   const handleLogout = async () => {
     await logout();
@@ -66,6 +61,7 @@ export default function Sidebar() {
               <Link
                 key={item.path}
                 href={item.path}
+                onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs transition-all tracking-wide ${
                   isActive 
                   ? 'bg-orange-500/10 text-orange-500 font-bold border border-orange-500/20' 

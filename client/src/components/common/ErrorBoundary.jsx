@@ -25,7 +25,7 @@ export class ErrorBoundary extends React.Component {
             </div>
             <h2 className="text-2xl font-bold mb-2">Something went wrong</h2>
             <p className="text-muted-foreground mb-8">
-              An unexpected error occurred. We've been notified and are working to fix it.
+              An unexpected error occurred. We&apos;ve been notified and are working to fix it.
             </p>
             <button 
               onClick={() => window.location.reload()} 

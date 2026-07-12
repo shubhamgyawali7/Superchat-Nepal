@@ -1,12 +1,23 @@
 "use client";
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export function useKeyboardShortcut(keys, callback, options = {}) {
+  const callbackRef = useRef(callback);
+  const keysRef = useRef(keys);
+  const optionsRef = useRef(options);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+    keysRef.current = keys;
+    optionsRef.current = options;
+  });
+
   useEffect(() => {
     const handler = (e) => {
       const { ctrlKey, shiftKey, altKey, key } = e;
-      
-      const keyCombo = keys.map(k => {
+      const currentKeys = keysRef.current;
+
+      const keyCombo = currentKeys.map(k => {
         const lowerK = k.toLowerCase();
         if (lowerK === 'ctrl') return ctrlKey;
         if (lowerK === 'shift') return shiftKey;
@@ -15,14 +26,14 @@ export function useKeyboardShortcut(keys, callback, options = {}) {
       }).every(Boolean);
 
       if (keyCombo) {
-        if (!options.allowBrowserDefault) {
+        if (!optionsRef.current.allowBrowserDefault) {
           e.preventDefault();
         }
-        callback(e);
+        callbackRef.current(e);
       }
     };
 
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [keys, callback, options]);
+  }, []);
 }

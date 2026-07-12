@@ -1,12 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { createBrowserClient } from "@supabase/ssr";
-
-// ─── Supabase browser client (singleton) ────────────────────────────────────
-const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { getSupabaseBrowser } from "@/lib/supabase";
 
 // ─── useAuth hook ────────────────────────────────────────────────────────────
 export function useAuth() {
@@ -14,6 +8,8 @@ export function useAuth() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const supabase = getSupabaseBrowser();
 
   // Fetch the streamer profile from your Express backend
   const fetchProfile = useCallback(async (userId) => {
@@ -34,7 +30,7 @@ export function useAuth() {
         code: err.code
       });
     }
-  }, []);
+  }, [supabase]);
 
   // Listen to Supabase auth state changes
   useEffect(() => {
@@ -58,7 +54,7 @@ export function useAuth() {
     );
 
     return () => subscription.unsubscribe();
-  }, [fetchProfile]);
+  }, [fetchProfile, supabase]);
 
   // ── Register ──────────────────────────────────────────────────────────────
   const register = async (email, password, username) => {
