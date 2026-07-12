@@ -18,7 +18,12 @@ export const createClient = (req, res) => {
           cookiesToSet.forEach(({ name, value, options }) =>
             res.appendHeader(
               "Set-Cookie",
-              serializeCookieHeader(name, value, options)
+              serializeCookieHeader(name, value, {
+                ...options,
+                sameSite: "none",
+                secure: true,
+                path: "/",
+              })
             )
           );
         },
