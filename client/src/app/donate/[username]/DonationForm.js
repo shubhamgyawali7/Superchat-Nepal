@@ -6,15 +6,15 @@ import { useToast } from "@/hooks/useToast";
 export default function DonationForm({ streamer }) {
   const router = useRouter();
   const { addToast } = useToast();
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState("100");
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("esewa");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const themeColor = streamer.theme_color || "#0f172a"; // Slate-900
-  const quickAmounts = [100, 500, 1000, 2500];
+  const themeColor = streamer.theme_color || "#ff5500";
+  const quickAmounts = [50, 100, 250, 500, 1000, 2500];
 
   const validate = () => {
     const newErrors = {};
@@ -29,13 +29,13 @@ export default function DonationForm({ streamer }) {
     }
 
     if (!name.trim()) {
-      newErrors.name = "Name is required";
+      newErrors.name = "Your streamer/supporter name is required";
     } else if (name.length > 50) {
-      newErrors.name = "Name too long";
+      newErrors.name = "Name must be under 50 characters";
     }
 
-    if (message.length > 500) {
-      newErrors.message = "Message too long";
+    if (message.length > 300) {
+      newErrors.message = "Message must be under 300 characters";
     }
 
     setErrors(newErrors);
@@ -105,172 +105,191 @@ export default function DonationForm({ streamer }) {
   const displayName = streamer.display_name || streamer.username || "Streamer";
 
   return (
-    <div className="relative group w-full">
-      {/* Dynamic Background Glow */}
-      <div
-        className="absolute -inset-6 bg-linear-to-r blur-3xl opacity-10 transition-opacity duration-1000 group-hover:opacity-25"
-        style={{ backgroundImage: `linear-gradient(to right, ${themeColor}, #ffffff)` }}
-      ></div>
+    <div className="w-full space-y-8">
+      {/* Main Donation Box */}
+      <div className="relative rounded-3xl bg-[#0c1220]/95 backdrop-blur-2xl border border-white/[0.08] p-6 sm:p-10 shadow-2xl">
+        <form onSubmit={handlePayment} className="space-y-7">
+          {/* Amount Selector */}
+          <div>
+            <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-3">
+              1. Choose Amount (NPR)
+            </label>
 
-      <form
-        onSubmit={handlePayment}
-        className="relative overflow-hidden bg-slate-900/40 backdrop-blur-3xl border border-white/10 p-10 sm:p-14 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] space-y-12"
-      >
-        {/* Header Section */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-5">
-            <div className="relative">
-              <div className="w-14 h-14 bg-white/10 rounded-2xl border border-white/20 flex items-center justify-center text-2xl font-heading font-black text-white shadow-inner">
-                {displayName[0].toUpperCase()}
+            <div className="relative rounded-2xl bg-black/40 border border-white/10 p-6 flex flex-col items-center justify-center">
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-3xl font-heading font-black text-slate-500">रू</span>
+                <input
+                  type="number"
+                  value={amount}
+                  className="w-48 bg-transparent text-center text-6xl sm:text-7xl font-heading font-black text-white outline-none placeholder:text-slate-700"
+                  placeholder="100"
+                  min="10"
+                  max="100000"
+                  onChange={(e) => {
+                    setAmount(e.target.value);
+                    if (errors.amount) setErrors((prev) => ({ ...prev, amount: null }));
+                  }}
+                />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-4 border-[#0f172a] animate-pulse"></div>
+
+              {errors.amount && (
+                <p className="text-red-400 text-xs font-bold mt-3">{errors.amount}</p>
+              )}
+
+              {/* Quick Amount Chips */}
+              <div className="flex flex-wrap justify-center gap-2 mt-6">
+                {quickAmounts.map((amt) => {
+                  const isSelected = amount === String(amt);
+                  return (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => {
+                        setAmount(String(amt));
+                        if (errors.amount) setErrors((prev) => ({ ...prev, amount: null }));
+                      }}
+                      className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                        isSelected
+                          ? "bg-gradient-to-r from-orange-500 to-amber-500 text-black shadow-lg shadow-orange-500/20 scale-105"
+                          : "bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 border border-white/[0.06]"
+                      }`}
+                    >
+                      रू {amt}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
+          </div>
+
+          {/* Supporter Name & Message */}
+          <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-heading font-black text-white tracking-tight">{displayName}</h3>
-              <p className="text-xs text-text-muted font-black uppercase tracking-[0.2em] opacity-50">Verified Creator</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 border border-white/10 bg-white/5 px-4 py-1.5 rounded-full">
-            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-[11px] font-black text-white/60 tracking-widest uppercase">Live Now</span>
-          </div>
-        </div>
-
-        {/* Amount Section */}
-        <div className="space-y-8">
-          <div className={`relative group/amount transition-all duration-500 p-12 rounded-[2.5rem] border-2 bg-white/[0.02] flex flex-col items-center justify-center ${errors.amount ? 'border-red-500/30 shadow-[0_0_40px_rgba(239,68,68,0.05)]' : 'border-white/5 focus-within:border-white/20'}`}>
-            <span className={`text-xs font-black uppercase tracking-[0.3em] mb-6 ${errors.amount ? 'text-red-400' : 'text-text-muted opacity-40'}`}>
-              Support Amount
-            </span>
-
-            <div className="flex items-center justify-center gap-4">
-              <span className="text-4xl font-heading font-light opacity-20 text-white">रू</span>
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-2">
+                2. Your Name
+              </label>
               <input
-                type="number"
-                value={amount}
-                className="no-spinner w-48 bg-transparent text-center text-8xl font-heading font-black text-white outline-none placeholder:opacity-5 transition-transform focus:scale-105"
-                placeholder="0"
+                type="text"
+                placeholder="e.g. Biraj, NepaliGamer_99"
+                className={`w-full bg-black/40 border rounded-xl px-4 py-3.5 text-sm font-bold text-white placeholder-slate-600 outline-none transition-all ${
+                  errors.name
+                    ? "border-red-500/50"
+                    : "border-white/10 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50"
+                }`}
+                value={name}
+                maxLength={50}
                 onChange={(e) => {
-                  setAmount(e.target.value);
-                  if (errors.amount) setErrors(prev => ({ ...prev, amount: null }));
+                  setName(e.target.value);
+                  if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
+                }}
+              />
+              {errors.name && <p className="text-red-400 text-xs font-bold mt-1.5">{errors.name}</p>}
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-400">
+                  3. Superchat Message
+                </label>
+                <span className="text-[10px] text-slate-500 font-mono">
+                  {message.length}/300
+                </span>
+              </div>
+              <textarea
+                placeholder="Write a message to be read aloud via Text-to-Speech on stream..."
+                rows={3}
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3.5 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all resize-none"
+                value={message}
+                maxLength={300}
+                onChange={(e) => {
+                  setMessage(e.target.value);
+                  if (errors.message) setErrors((prev) => ({ ...prev, message: null }));
                 }}
               />
             </div>
+          </div>
 
-            {errors.amount && (
-              <p className="text-red-500 text-xs font-black mt-6 uppercase tracking-widest animate-in fade-in slide-in-from-top-2">{errors.amount}</p>
-            )}
+          {/* Gateway Selector */}
+          <div>
+            <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-3">
+              4. Select Payment Gateway
+            </label>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("esewa")}
+                className={`p-4 rounded-2xl border text-left transition-all ${
+                  paymentMethod === "esewa"
+                    ? "bg-emerald-500/15 border-emerald-500/50 shadow-lg shadow-emerald-500/10"
+                    : "bg-black/30 border-white/10 hover:border-white/20"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-base font-black text-emerald-400">🟢 eSewa</span>
+                  {paymentMethod === "esewa" && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                  )}
+                </div>
+                <p className="text-[10px] text-slate-400 font-medium">Instant Verification</p>
+              </button>
 
-            {/* Quick Amounts */}
-            <div className="flex flex-wrap justify-center gap-3 mt-10">
-              {quickAmounts.map((amt) => (
-                <button
-                  key={amt}
-                  type="button"
-                  onClick={() => {
-                    setAmount(String(amt));
-                    if (errors.amount) setErrors(prev => ({ ...prev, amount: null }));
-                  }}
-                  className={`px-6 py-3 rounded-2xl text-xs font-black transition-all duration-300 border-2 ${amount == String(amt)
-                    ? "bg-white text-black border-white shadow-2xl shadow-white/10 scale-110"
-                    : "bg-white/5 text-text-muted border-white/5 hover:bg-white/10 hover:border-white/20"
-                    }`}
-                >
-                  +रू {amt}
-                </button>
-              ))}
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("khalti")}
+                className={`p-4 rounded-2xl border text-left transition-all ${
+                  paymentMethod === "khalti"
+                    ? "bg-purple-500/15 border-purple-500/50 shadow-lg shadow-purple-500/10"
+                    : "bg-black/30 border-white/10 hover:border-white/20"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-base font-black text-purple-400">🟣 Khalti</span>
+                  {paymentMethod === "khalti" && (
+                    <span className="w-2 h-2 rounded-full bg-purple-400" />
+                  )}
+                </div>
+                <p className="text-[10px] text-slate-400 font-medium">Coming Soon</p>
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* Form Inputs */}
-        <div className="space-y-8">
-          <div className="group/input relative">
-            <label className="text-xs font-black text-text-muted uppercase tracking-[0.2em] ml-6 mb-3 block opacity-50">Your Name</label>
-            <input
-              type="text"
-              placeholder="e.g. Nepali Gamer"
-              className={`w-full bg-white/[0.03] border-2 p-6 rounded-[1.8rem] outline-none transition-all text-base font-bold text-white placeholder:text-white/10 ${errors.name ? 'border-red-500/20 bg-red-500/[0.02]' : 'border-white/5 focus:border-white/20 focus:bg-white/[0.05]'}`}
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                if (errors.name) setErrors(prev => ({ ...prev, name: null }));
-              }}
-            />
-            {errors.name && <p className="text-red-500 text-xs font-black mt-3 ml-6 uppercase tracking-widest">{errors.name}</p>}
+          {/* Live On-Screen Preview */}
+          <div className="rounded-2xl bg-black/50 border border-white/10 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                Live On-Stream Preview
+              </span>
+              <span className="text-[10px] text-slate-500 font-mono">OBS Alert</span>
+            </div>
+
+            <div className="rounded-xl bg-[#121929] border border-orange-500/30 p-4 text-center space-y-2 shadow-inner">
+              <p className="text-xs font-black uppercase tracking-tight text-white">
+                {name || "Your Name"}{" "}
+                <span className="text-orange-400 font-black">sent रू {amount || "0"}</span>
+              </p>
+              {message && (
+                <p className="text-xs text-slate-300 italic max-w-sm mx-auto">
+                  &ldquo;{message}&rdquo;
+                </p>
+              )}
+            </div>
           </div>
 
-          <div className="group/textarea relative">
-            <label className="text-xs font-black text-text-muted uppercase tracking-[0.2em] ml-6 mb-3 block opacity-50">Message</label>
-            <textarea
-              placeholder="Write a message to appear on stream..."
-              className={`w-full bg-white/[0.03] border-2 p-8 rounded-[2rem] outline-none transition-all h-40 resize-none text-base font-bold text-white placeholder:text-white/10 ${errors.message ? 'border-red-500/20 bg-red-500/[0.02]' : 'border-white/5 focus:border-white/20 focus:bg-white/[0.05]'}`}
-              value={message}
-              onChange={(e) => {
-                setMessage(e.target.value);
-                if (errors.message) setErrors(prev => ({ ...prev, message: null }));
-              }}
-            ></textarea>
-          </div>
-        </div>
+          {/* Pay Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 hover:from-orange-400 hover:to-amber-400 text-black py-4 rounded-2xl text-base font-black uppercase tracking-wider transition-all shadow-xl shadow-orange-500/25 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+          >
+            {isLoading ? "Redirecting to Gateway..." : `Send रू ${amount || "0"} Superchat →`}
+          </button>
+        </form>
+      </div>
 
-        {/* Gateway Selection */}
-        <div className="space-y-6">
-          <label className="text-xs font-black text-text-muted uppercase tracking-[0.2em] ml-6 block opacity-50">Payment Gateway</label>
-          <div className="grid grid-cols-2 gap-5">
-            <button
-              type="button"
-              onClick={() => setPaymentMethod("esewa")}
-              className={`relative overflow-hidden p-8 rounded-[2rem] border-2 transition-all duration-500 ${paymentMethod === "esewa"
-                ? "border-green-500/40 bg-green-500/10 shadow-2xl shadow-green-500/5"
-                : "border-white/5 bg-white/[0.02] hover:border-white/20"
-                }`}
-            >
-              <div className="flex flex-col items-center gap-3 relative z-10">
-                <span className={`text-sm font-black tracking-[0.3em] uppercase transition-colors ${paymentMethod === 'esewa' ? 'text-green-400' : 'text-text-muted'}`}>eSewa</span>
-                <div className={`w-2 h-2 rounded-full transition-all duration-500 ${paymentMethod === 'esewa' ? 'bg-green-500 scale-100' : 'bg-transparent scale-0'}`}></div>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setPaymentMethod("khalti")}
-              className={`relative overflow-hidden p-8 rounded-[2rem] border-2 transition-all duration-500 ${paymentMethod === "khalti"
-                ? "border-purple-500/40 bg-purple-500/10 shadow-2xl shadow-purple-500/5"
-                : "border-white/5 bg-white/[0.02] hover:border-white/20"
-                }`}
-            >
-              <div className="flex flex-col items-center gap-3 relative z-10">
-                <span className={`text-sm font-black tracking-[0.3em] uppercase transition-colors ${paymentMethod === 'khalti' ? 'text-purple-400' : 'text-text-muted'}`}>Khalti</span>
-                <div className={`w-2 h-2 rounded-full transition-all duration-500 ${paymentMethod === 'khalti' ? 'bg-purple-500 scale-100' : 'bg-transparent scale-0'}`}></div>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="group/submit relative w-full h-24 rounded-[2.5rem] text-white font-heading font-black text-2xl transition-all duration-500 active:scale-[0.98] disabled:opacity-50 overflow-hidden shadow-2xl"
-          style={{ backgroundColor: themeColor }}
-        >
-          <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/submit:translate-y-0 transition-transform duration-500"></div>
-          <div className="relative z-10 flex items-center justify-center gap-4">
-            <span className="tracking-tight">{isLoading ? "Processing Transaction..." : `Send रू ${amount || '0'}`}</span>
-            {!isLoading && (
-              <svg className="w-8 h-8 transition-transform group-hover/submit:translate-x-2 group-hover/submit:-translate-y-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            )}
-          </div>
-        </button>
-
-        {/* Footer Info */}
-        <div className="text-center pt-4">
-          <p className="text-[11px] font-black text-text-muted/30 uppercase tracking-[0.4em]">Transaction secured with AES-256 Encryption</p>
-        </div>
-      </form>
+      <p className="text-center text-xs text-slate-500 font-medium">
+        🔒 Encrypted &amp; direct payments to {displayName}. No middleman fees.
+      </p>
     </div>
   );
 }

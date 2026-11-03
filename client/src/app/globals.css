@@ -1,21 +1,23 @@
 @import "tailwindcss";
-/* Fonts are loaded in layout.js via next/font/google */
 
 :root {
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-heading: var(--font-outfit), sans-serif;
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --surface: #ffffff;
-  --surface-border: rgba(0, 0, 0, 0.05);
-  --text-muted: #64748b;
-  --primary: #f97316;
+  --background: #070a13;
+  --foreground: #f8fafc;
+  --surface: #0e1424;
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --text-muted: #94a3b8;
+  --primary: #ff5500;
+  --primary-hover: #ff6e1a;
+  --accent-gold: #fbbf24;
+  --accent-emerald: #10b981;
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ffffff;
-  --surface: #111111;
+  --background: #060911;
+  --foreground: #f8fafc;
+  --surface: #0c1220;
   --surface-border: rgba(255, 255, 255, 0.08);
   --text-muted: #94a3b8;
 }
@@ -32,84 +34,70 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: dark;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  font-size: 16px; /* Professional standard */
   line-height: 1.6;
-  transition: background 0.3s, color 0.3s;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(255, 85, 0, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.04) 0px, transparent 50%);
+  background-attachment: fixed;
 }
 
-.container-prof {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-.section-prof {
-  padding-top: 80px;
-  padding-bottom: 80px;
-}
-
-@media (max-width: 768px) {
-  .section-prof {
-    padding-top: 60px;
-    padding-bottom: 60px;
-  }
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.heading {
+h1, h2, h3, h4, h5, h6, .heading {
   font-family: var(--font-heading);
 }
 
-/* ── Mobile & Touch Enhancements ────────────────────────────────────────── */
-@media (hover: none) {
-  .tap-highlight-none {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  button:active,
-  .clickable:active,
-  a:active {
-    transform: scale(0.96);
-    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(14, 20, 36, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Ensure touch targets are at least 44px for accessibility on mobile */
-@media (hover: none) and (pointer: coarse) {
-  button,
-  a[href],
-  input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]),
-  select,
-  .touch-target {
-    min-height: 44px;
-  }
+.glass-panel-hover:hover {
+  background: rgba(20, 28, 48, 0.85);
+  border-color: rgba(255, 85, 0, 0.3);
+  box-shadow: 0 10px 30px -10px rgba(255, 85, 0, 0.15);
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+/* Glowing text and borders */
+.glow-orange {
+  box-shadow: 0 0 25px -5px rgba(255, 85, 0, 0.4);
 }
 
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.glow-emerald {
+  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.4);
 }
 
-/* Hide arrows in Chrome, Safari, Edge, Opera */
-.no-spinner::-webkit-outer-spin-button,
-.no-spinner::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #070a13;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff5500;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
 }

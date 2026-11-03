@@ -35,13 +35,13 @@ SuperChat Nepal empowers Nepali streamers to receive live donations from support
 - **Styling:** Tailwind CSS 4
 - **State Management:** Zustand
 - **Real-time:** Socket.io Client
-- **Auth:** Supabase Auth (SSR via `@supabase/ssr`)
+- **Auth:** Custom JWT auth via HTTP-only cookies
 
 ### Backend
 - **Runtime:** Node.js / Express 5
 - **Real-time:** Socket.io
-- **Database:** Supabase (PostgreSQL) with Row Level Security
-- **Security:** Input sanitization, HTTP-only Cookies
+- **Database:** Neon PostgreSQL with Prisma ORM
+- **Security:** bcrypt password hashing, JWT sessions, input sanitization, HTTP-only Cookies
 
 ---
 
@@ -56,7 +56,7 @@ graph TD
     B -->|Verify| C
     C -->|Status Check| E[Payment Gateway API]
     E -->|Confirmed| C
-    C -->|Store| F[Supabase Database]
+    C -->|Store| F[Neon PostgreSQL]
     C -->|Emit Alert| G[Socket.io Server]
     G -->|Broadcast| H[OBS Overlay]
     H -->|Visual + TTS Alert| I[Livestream]
@@ -76,13 +76,13 @@ superchat/
 │   ├── src/components/  # Reusable UI components
 │   ├── src/hooks/       # Custom React hooks (useAuth, useSocket, etc.)
 │   ├── src/store/       # Zustand stores (alert queue)
-│   └── src/lib/         # Supabase client helpers
+│       └── src/lib/         # API client helpers
 ├── server/              # Node.js/Express backend API
 │   ├── src/controllers/ # Route handlers (auth, donations, streamer)
 │   ├── src/middleware/   # Auth middleware
 │   ├── src/routes/      # API route definitions
 │   ├── src/utils/       # Payment utilities (eSewa)
-│   └── schema.sql       # Full DB schema, triggers, RLS, indexes
+│       └── prisma/schema.prisma  # Prisma schema (source of truth)
 └── docs/                # Documentation and assets
 ```
 
@@ -116,7 +116,7 @@ Streamers can fully customize their OBS overlay from **Dashboard > Settings**:
 
 ### 1. Prerequisites
 - Node.js **18.x** or higher
-- Supabase account & project
+- Neon PostgreSQL account & database
 - eSewa Merchant credentials
 
 ### 2. Installation
@@ -135,13 +135,15 @@ cd ../client && npm install
 
 ### 3. Database Setup
 
-Run `server/schema.sql` in your Supabase SQL Editor. This creates:
-- `profiles` table (auto-created on signup via trigger)
-- `donations` table
-- Row Level Security policies
-- Auto-update triggers for earnings
-- Performance indexes
-- Realtime subscriptions
+Set `DATABASE_URL` in `server/.env`, then push the Prisma schema to your Neon database:
+
+```bash
+cd server
+npx prisma generate
+npx prisma db push
+```
+
+This creates the `users`, `profiles`, and `donations` tables. `server/schema.sql` is kept as a plain-SQL reference.
 
 ### 4. Environment Configuration
 
@@ -149,17 +151,17 @@ Run `server/schema.sql` in your Supabase SQL Editor. This creates:
 | Key | Description |
 |---|---|
 | `PORT` | Server listening port (default: 5000) |
-| `SUPABASE_URL` | Your Supabase Project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Admin key for secure DB updates |
+| `DATABASE_URL` | Neon PostgreSQL connection string (with `sslmode=require`) |
+| `JWT_SECRET` | Secret used to sign session tokens |
+| `CLIENT_URL` | Frontend origin used for CORS and redirects |
 | `ESEWA_SECRET_KEY` | Your eSewa Merchant Secret |
 | `ESEWA_PRODUCT_CODE` | Your eSewa Product Code |
 
 #### Client (`client/.env.local`)
 | Key | Description |
 |---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Public Key |
 | `NEXT_PUBLIC_SERVER_URL` | Backend API URL |
+| `NEXT_PUBLIC_CLIENT_URL` | Frontend URL (used for payment redirects) |
 
 ---
 

@@ -6,29 +6,34 @@ export default function KhaltiComingSoon() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 text-center">
-      <div className="bg-slate-900 border border-purple-500/30 p-10 rounded-3xl max-w-md shadow-[0_0_50px_rgba(168,85,247,0.1)]">
-        <div className="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-4xl text-white font-bold">K</span>
-        </div>
-        <h1 className="text-3xl font-black text-white mb-2 uppercase tracking-tighter">
-          Coming Soon
-        </h1>
-        <p className="text-slate-400 mb-2">
-          Khalti payment integration is currently <span className="text-purple-400 font-bold">under development</span>.
-        </p>
-        <p className="text-slate-500 text-sm mb-8">
-          Please use <span className="text-green-400 font-bold">eSewa</span> to complete your donation for now.
-        </p>
+    <div className="min-h-screen bg-[#070a13] text-white flex items-center justify-center p-6 text-center relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-600/15 rounded-full blur-[140px] pointer-events-none" />
 
-        <div className="space-y-3">
-          <button
-            onClick={() => router.back()}
-            className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-purple-900/20"
-          >
-            Go Back
-          </button>
+      <div className="relative z-10 bg-[#0c1220]/90 backdrop-blur-2xl border border-white/[0.08] p-8 sm:p-10 rounded-3xl max-w-md w-full shadow-2xl space-y-6">
+        <div className="w-20 h-20 bg-purple-500/15 border border-purple-500/30 rounded-3xl flex items-center justify-center mx-auto text-3xl shadow-lg shadow-purple-500/20">
+          🟣
         </div>
+        <div>
+          <span className="text-[10px] font-black uppercase tracking-widest text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
+            Khalti Gateway
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-heading font-black text-white uppercase tracking-tight mt-3">
+            Coming Very Soon
+          </h1>
+          <p className="text-sm text-slate-400 mt-2 leading-relaxed">
+            Khalti payment gateway integration is currently in testing and will be live shortly.
+          </p>
+          <div className="mt-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-300 font-medium">
+            💡 Tip: Please use <strong className="text-white">eSewa</strong> to send superchats right now!
+          </div>
+        </div>
+
+        <button
+          onClick={() => router.back()}
+          className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-black font-black py-4 rounded-xl text-xs uppercase tracking-wider transition-all shadow-lg shadow-orange-500/20 hover:scale-[1.02]"
+        >
+          ← Back to Donation
+        </button>
       </div>
     </div>
   );

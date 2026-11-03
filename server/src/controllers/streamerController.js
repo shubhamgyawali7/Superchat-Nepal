@@ -202,9 +202,15 @@ export const updateProfile = async (req, res) => {
       data: updates,
     });
 
+    const serialized = toProfile(profile);
+
+    if (req.io && profile.username) {
+      req.io.to(profile.username).emit("settings-updated", toPublicProfile(profile));
+    }
+
     res.status(200).json({
       message: "Profile updated successfully",
-      profile: toProfile(profile),
+      profile: serialized,
     });
   } catch (err) {
     if (err.code === "P2025") {
@@ -283,6 +289,7 @@ export const getTopDonations = async (req, res) => {
     const donations = await prisma.donation.findMany({
       where: {
         streamerId: profile.id,
+        status: "verified",
         ...(profile.lastClearedAt
           ? { createdAt: { gt: profile.lastClearedAt } }
           : {}),
@@ -295,5 +302,38 @@ export const getTopDonations = async (req, res) => {
   } catch (err) {
     console.error("Top donations error:", err);
     res.status(500).json({ error: "Failed to fetch top donations" });
+  }
+};
+
+export const getRecentDonations = async (req, res) => {
+  const { username } = req.params;
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 50);
+
+  try {
+    const profile = await prisma.profile.findUnique({
+      where: { username },
+      select: { id: true, lastClearedAt: true },
+    });
+
+    if (!profile) {
+      return res.status(404).json({ error: "Streamer not found" });
+    }
+
+    const donations = await prisma.donation.findMany({
+      where: {
+        streamerId: profile.id,
+        status: "verified",
+        ...(profile.lastClearedAt
+          ? { createdAt: { gt: profile.lastClearedAt } }
+          : {}),
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
+
+    res.status(200).json(donations.map(toDonation));
+  } catch (err) {
+    console.error("Recent donations error:", err);
+    res.status(500).json({ error: "Failed to fetch recent donations" });
   }
 };

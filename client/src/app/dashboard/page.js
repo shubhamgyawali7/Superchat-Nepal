@@ -28,9 +28,11 @@ export default async function DashboardPage() {
     username: data.username || user.username || "Streamer",
   };
 
-  const overlayUrl = `${process.env.NEXT_PUBLIC_CLIENT_URL}/overlay/${streamerUser.username}`;
-  const topOverlayUrl = `${process.env.NEXT_PUBLIC_CLIENT_URL}/overlay/${streamerUser.username}/top`;
-  const donationUrl = `${process.env.NEXT_PUBLIC_CLIENT_URL}/donate/${streamerUser.username}`;
+  const clientBase = process.env.NEXT_PUBLIC_CLIENT_URL || "http://localhost:3000";
+  const overlayUrl = `${clientBase}/overlay/${streamerUser.username}`;
+  const topOverlayUrl = `${clientBase}/overlay/${streamerUser.username}/top`;
+  const recentOverlayUrl = `${clientBase}/overlay/${streamerUser.username}/recent`;
+  const donationUrl = `${clientBase}/donate/${streamerUser.username}`;
 
   return (
     <DashboardClient
@@ -39,6 +41,7 @@ export default async function DashboardPage() {
       serverUrl={process.env.NEXT_PUBLIC_SERVER_URL}
       overlayUrl={overlayUrl}
       topOverlayUrl={topOverlayUrl}
+      recentOverlayUrl={recentOverlayUrl}
       donationUrl={donationUrl}
     />
   );

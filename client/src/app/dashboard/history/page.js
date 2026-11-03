@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { redirect } from "next/navigation";
 import { getCurrentUser, serverFetch } from "@/lib/serverApi";
 
@@ -9,83 +9,125 @@ export default async function HistoryPage() {
   const res = await serverFetch("/api/streamer/donations");
   const donations = res.ok ? await res.json() : [];
 
-  return (
-    <div className="text-foreground" style={{ fontFamily: "'DM Mono', monospace" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');`}</style>
+  const totalAmount = donations.reduce((s, d) => s + (parseFloat(d.amount) || 0), 0);
+  const avgAmount = donations.length > 0 ? Math.round(totalAmount / donations.length) : 0;
 
-      <div className="flex items-center justify-between mb-6">
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <p className="text-[10px] text-text-muted uppercase tracking-widest mb-0.5">Dashboard / History</p>
-          <h1 className="text-xl font-bold uppercase tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+          <p className="text-xs text-orange-400 uppercase tracking-widest font-black mb-1">
+            Dashboard / Analytics
+          </p>
+          <h1 className="text-2xl sm:text-3xl font-heading font-black uppercase tracking-tight text-white">
             Donation History
           </h1>
         </div>
-        <button className="text-xs border border-surface-border hover:border-orange-500/30 text-text-muted hover:text-orange-400 px-3 py-2 rounded uppercase tracking-widest transition-all">
-          Export CSV
-        </button>
       </div>
 
-      {/* Summary strip */}
-      {donations && donations.length > 0 && (
-        <div className="flex gap-3 mb-5">
-          <div className="bg-surface border border-surface-border px-4 py-2.5 rounded text-sm">
-            <span className="text-text-muted text-[10px] uppercase tracking-widest mr-2">Total</span>
-            <span className="font-bold text-orange-500">
-              रू {donations.reduce((s, d) => s + (d.amount || 0), 0).toLocaleString()}
-            </span>
-          </div>
-          <div className="bg-surface border border-surface-border px-4 py-2.5 rounded text-sm">
-            <span className="text-text-muted text-[10px] uppercase tracking-widest mr-2">Records</span>
-            <span className="font-bold">{donations.length}</span>
-          </div>
+      {/* Metrics Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-[#0c1220] border border-white/[0.08] p-5 rounded-2xl">
+          <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">
+            Total Donations
+          </p>
+          <p className="text-2xl sm:text-3xl font-heading font-black text-orange-500">
+            रू {totalAmount.toLocaleString()}
+          </p>
         </div>
-      )}
+        <div className="bg-[#0c1220] border border-white/[0.08] p-5 rounded-2xl">
+          <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">
+            Total Superchats
+          </p>
+          <p className="text-2xl sm:text-3xl font-heading font-black text-white">
+            {donations.length}
+          </p>
+        </div>
+        <div className="bg-[#0c1220] border border-white/[0.08] p-5 rounded-2xl">
+          <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-1">
+            Average Amount
+          </p>
+          <p className="text-2xl sm:text-3xl font-heading font-black text-emerald-400">
+            रू {avgAmount.toLocaleString()}
+          </p>
+        </div>
+      </div>
 
-      <div className="bg-surface border border-surface-border rounded-lg overflow-hidden">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="border-b border-surface-border">
-              {["Date", "Donor", "Amount", "Method", "Status", "Message"].map(h => (
-                <th key={h} className="px-5 py-3 text-[10px] text-text-muted uppercase tracking-widest font-medium">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {donations?.length > 0 ? (
-              donations.map((item) => (
-                <tr key={item.id} className="border-b border-surface-border hover:bg-foreground/5 transition-colors">
-                  <td className="px-5 py-3 text-xs text-text-muted">
-                    {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </td>
-                  <td className="px-5 py-3 text-sm font-bold">{item.supporter_name}</td>
-                  <td className="px-5 py-3 text-sm text-orange-500 font-bold">रू {item.amount}</td>
-                  <td className="px-5 py-3">
-                    <span className="text-[10px] bg-background border border-surface-border px-2 py-0.5 rounded uppercase tracking-wide text-text-muted">
-                      {item.payment_gateway}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3">
-                    <span className={`text-[10px] px-2 py-0.5 rounded uppercase tracking-wide font-bold ${item.status === 'verified'
-                        ? 'bg-emerald-500/10 text-emerald-500'
-                        : 'bg-amber-500/10 text-amber-500'
-                      }`}>
-                      {item.status}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 text-xs text-text-muted max-w-[160px] truncate italic">&quot;{item.message}&quot;</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" className="px-5 py-12 text-center text-xs text-text-muted">
-                  No donations found yet.
-                </td>
+      {/* Table Container */}
+      <div className="bg-[#0c1220] border border-white/[0.08] rounded-3xl overflow-hidden shadow-xl">
+        <div className="px-6 py-4 border-b border-white/[0.08] flex items-center justify-between">
+          <h2 className="text-sm font-black uppercase tracking-wider text-white">
+            All Transactions
+          </h2>
+          <span className="text-xs text-slate-400 font-mono">
+            {donations.length} record{donations.length === 1 ? "" : "s"}
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-white/[0.06] bg-white/[0.02]">
+                {["Date", "Supporter", "Amount", "Gateway", "Status", "Message"].map((h) => (
+                  <th
+                    key={h}
+                    className="px-6 py-4 text-xs text-slate-400 uppercase tracking-wider font-black"
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-white/[0.06]">
+              {donations.length > 0 ? (
+                donations.map((item) => (
+                  <tr key={item.id} className="hover:bg-white/[0.03] transition-colors">
+                    <td className="px-6 py-4 text-xs text-slate-400 font-mono whitespace-nowrap">
+                      {new Date(item.created_at).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-bold text-white whitespace-nowrap">
+                      {item.supporter_name}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-black text-orange-400 whitespace-nowrap">
+                      रू {item.amount}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-xs bg-white/[0.05] border border-white/10 px-2.5 py-1 rounded-lg uppercase tracking-wider font-bold text-slate-300">
+                        {item.payment_gateway || "eSewa"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`text-xs px-2.5 py-1 rounded-full uppercase tracking-wider font-black ${
+                          item.status === "verified"
+                            ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                            : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-xs text-slate-300 max-w-xs truncate italic">
+                      {item.message ? `"${item.message}"` : <span className="opacity-40">No message</span>}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="px-6 py-16 text-center text-sm text-slate-400 font-medium">
+                    No donation records found yet. Once viewers donate on your stream, they will appear here! 🚀
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
-
 }

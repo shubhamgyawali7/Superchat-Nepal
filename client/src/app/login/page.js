@@ -29,60 +29,69 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center px-4 font-sans selection:bg-orange-500/30">
+    <div className="min-h-screen bg-[#070a13] text-white flex items-center justify-center px-4 py-12 relative overflow-hidden selection:bg-orange-500/30">
+      {/* Background Ambience */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 w-[50%] h-[50%] rounded-full blur-[150px] opacity-10 bg-orange-500/20 animate-pulse"></div>
-        <div className="absolute bottom-0 right-0 w-[40%] h-[40%] rounded-full blur-[120px] opacity-5 bg-orange-500/10"></div>
+        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-orange-600/15 blur-[140px]" />
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-indigo-600/15 blur-[140px]" />
       </div>
 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-4 mb-12 justify-center group">
+        <Link href="/" className="flex items-center gap-3 mb-8 justify-center group">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Superchat Nepal" className="w-8 h-8 rounded-lg shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform" />
+          <img
+            src="/logo.png"
+            alt="Superchat Nepal"
+            className="w-10 h-10 rounded-xl object-contain shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-all"
+          />
           <span className="text-xl font-heading font-black tracking-tight uppercase">
-            Superchat Nepal
+            Superchat <span className="text-orange-500">Nepal</span>
           </span>
         </Link>
 
-        <div className="bg-white/[0.03] backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-10 sm:p-12 shadow-2xl">
-          <div className="mb-10">
-            <h2 className="text-3xl font-heading font-black mb-3 uppercase tracking-tight">
-              Welcome Back
+        {/* Card */}
+        <div className="bg-[#0c1220]/90 backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-8 sm:p-10 shadow-2xl">
+          <div className="mb-8 text-center sm:text-left">
+            <h2 className="text-2xl sm:text-3xl font-heading font-black uppercase tracking-tight text-white mb-2">
+              Streamer Sign In
             </h2>
-            <p className="text-base text-text-muted font-medium opacity-60 leading-relaxed">Sign in to manage your stream alerts and donations.</p>
+            <p className="text-sm text-slate-400 font-medium">
+              Access your real-time OBS overlays, earnings, and donations.
+            </p>
           </div>
 
           {(error || authError) && (
-            <div className="mb-8 p-5 bg-red-500/10 border border-red-500/20 rounded-2xl text-sm font-bold text-red-400 animate-in fade-in slide-in-from-top-2">
-              {error || authError}
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/25 rounded-2xl text-xs font-bold text-red-400 flex items-center gap-2">
+              <span>⚠️</span>
+              <span>{error || authError}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="group/input">
-              <label className="block text-xs font-black text-text-muted uppercase tracking-[0.2em] mb-3 ml-4 opacity-50">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-2">
                 Email Address
               </label>
               <input
                 type="email"
                 required
-                className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 text-base font-bold text-white placeholder-white/10 outline-none focus:border-orange-500/30 focus:bg-white/[0.08] transition-all"
-                placeholder="you@example.com"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3.5 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
+                placeholder="streamer@example.com"
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
             </div>
 
-            <div className="group/input">
-              <div className="flex justify-end items-center mb-3 ml-4 mr-4">
-                <label className="block text-xs font-black text-text-muted uppercase tracking-[0.2em] opacity-50">
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-400">
                   Password
                 </label>
               </div>
               <input
                 type="password"
                 required
-                className="w-full bg-white/5 border-2 border-white/5 rounded-2xl px-6 py-4 text-base font-bold text-white placeholder-white/10 outline-none focus:border-orange-500/30 focus:bg-white/[0.08] transition-all"
+                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3.5 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
                 placeholder="••••••••"
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
@@ -91,26 +100,21 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group/btn w-full h-16 bg-orange-500 hover:bg-orange-400 text-black text-base font-black rounded-2xl uppercase tracking-[0.15em] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-orange-500/20 relative overflow-hidden"
+              className="w-full mt-2 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 hover:from-orange-400 hover:to-amber-400 text-black py-4 rounded-xl text-xs font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
             >
-              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500"></div>
-              <span className="relative z-10">{isLoading ? "Signing in..." : "Sign In →"}</span>
+              {isLoading ? "Signing in..." : "Sign In to Stream"}
             </button>
           </form>
 
-          <div className="border-t border-white/5 mt-10 pt-8 text-center">
-            <p className="text-sm text-text-muted font-bold tracking-wide">
-              New to Superchat?{" "}
-              <Link href="/register" alt="Register free" title="Register free" className="text-orange-500 hover:text-orange-400 font-black uppercase tracking-widest ml-2 transition-colors">
-                Register free
+          <div className="mt-8 pt-6 border-t border-white/[0.08] text-center">
+            <p className="text-xs text-slate-400 font-medium">
+              Don&apos;t have a creator account?{" "}
+              <Link href="/register" className="text-orange-400 hover:text-orange-300 font-bold ml-1">
+                Register Free
               </Link>
             </p>
           </div>
         </div>
-
-        <p className="text-center text-[11px] font-black text-text-muted/30 mt-10 uppercase tracking-[0.4em]">
-          Secure · Encrypted · Built for Nepal
-        </p>
       </div>
     </div>
   );

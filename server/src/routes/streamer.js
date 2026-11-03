@@ -8,6 +8,7 @@ import {
   sendTestAlert,
   resetDonations,
   getTopDonations,
+  getRecentDonations,
 } from "../controllers/streamerController.js";
 import { auth } from "../middleware/authMiddleware.js";
 
@@ -24,6 +25,9 @@ router.get("/profile/:username", getPublicProfile);
 
 // Public: Get top 5 donations for streamer
 router.get("/top-donations/:username", getTopDonations);
+
+// Public: Get recent verified donations for the overlay feed
+router.get("/recent-donations/:username", getRecentDonations);
 
 // Private: Get dashboard stats (authenticated)
 router.get("/dashboard", auth, getDashboardData);
