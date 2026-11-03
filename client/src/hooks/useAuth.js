@@ -1,77 +1,64 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { getSupabaseBrowser } from "@/lib/supabase";
 
-// ─── useAuth hook ────────────────────────────────────────────────────────────
+const jsonRequest = (path, options = {}) =>
+  fetch(path, {
+    credentials: "include",
+    headers: { "Content-Type": "application/json", ...options.headers },
+    ...options,
+  });
+
 export function useAuth() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const supabase = getSupabaseBrowser();
-
-  // Fetch the streamer profile from your Express backend
-  const fetchProfile = useCallback(async (userId) => {
+  const refresh = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-
-      if (error && error.code !== "PGRST116") throw error; // PGRST116 = not found
-      setProfile(data ?? null);
-    } catch (err) {
-      console.error("Profile fetch error details:", {
-        message: err.message,
-        details: err.details,
-        hint: err.hint,
-        code: err.code
+      const res = await fetch("/api/auth/me", {
+        credentials: "include",
+        cache: "no-store",
       });
-    }
-  }, [supabase]);
 
-  // Listen to Supabase auth state changes
-  useEffect(() => {
-    // 1. Get the initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      if (currentUser) fetchProfile(currentUser.id);
-      setLoading(false);
-    });
-
-    // 2. Subscribe to auth changes (login, logout, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        const currentUser = session?.user ?? null;
-        setUser(currentUser);
-        if (currentUser) fetchProfile(currentUser.id);
-        else setProfile(null);
-        setLoading(false);
+      if (!res.ok) {
+        setUser(null);
+        setProfile(null);
+        return null;
       }
-    );
 
-    return () => subscription.unsubscribe();
-  }, [fetchProfile, supabase]);
+      const data = await res.json();
+      setUser(data.user ?? null);
+      setProfile(data.profile ?? null);
+      return data.user ?? null;
+    } catch (err) {
+      console.error("Session fetch error:", err);
+      setUser(null);
+      setProfile(null);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  // ── Register ──────────────────────────────────────────────────────────────
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  // Register
   const register = async (email, password, username) => {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/register`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ email, password, username }),
-        }
-      );
+      const res = await jsonRequest("/api/auth/register", {
+        method: "POST",
+        body: JSON.stringify({ email, password, username }),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Registration failed");
+
+      setUser(data.user ?? null);
+      setProfile(data.profile ?? null);
       return { success: true, message: data.message };
     } catch (err) {
       setError(err.message);
@@ -81,27 +68,20 @@ export function useAuth() {
     }
   };
 
-
-  // ── Login ─────────────────────────────────────────────────────────────────
+  // Login
   const login = async (email, password) => {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const res = await jsonRequest("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Login failed");
 
-      // Session cookies are set by the server — Supabase SSR picks them up
-      // Force a session refresh on the client side
-      await supabase.auth.getSession();
+      setUser(data.user ?? null);
+      setProfile(data.profile ?? null);
       return { success: true };
     } catch (err) {
       setError(err.message);
@@ -111,36 +91,30 @@ export function useAuth() {
     }
   };
 
-  // ── Logout ────────────────────────────────────────────────────────────────
+  // Logout
   const logout = async () => {
     setError(null);
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/logout`, {
+      await fetch("/api/auth/logout", {
         method: "POST",
         credentials: "include",
       });
-      // Also sign out on the client side
-      await supabase.auth.signOut();
-      setUser(null);
-      setProfile(null);
     } catch (err) {
       console.error("Logout error:", err);
+    } finally {
+      setUser(null);
+      setProfile(null);
     }
   };
 
-  // ── Update Profile ────────────────────────────────────────────────────────
+  // Update Profile
   const updateProfile = async (updates) => {
     setError(null);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/streamer/profile`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(updates),
-        }
-      );
+      const res = await jsonRequest("/api/streamer/profile", {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Update failed");
       setProfile(data.profile);
@@ -161,7 +135,7 @@ export function useAuth() {
     login,
     logout,
     updateProfile,
-    supabase, // expose for direct queries if needed
+    refresh,
   };
 }
 

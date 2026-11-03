@@ -53,7 +53,7 @@ export default function SettingsForm({ initialProfile }) {
   const saveProfile = useCallback(async (data) => {
     setSaveStatus("saving");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/streamer/profile`, {
+      const res = await fetch("/api/streamer/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -115,7 +115,7 @@ export default function SettingsForm({ initialProfile }) {
     e.preventDefault();
     setSaveStatus("saving");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/streamer/profile`, {
+      const res = await fetch("/api/streamer/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

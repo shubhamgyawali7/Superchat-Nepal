@@ -1,5 +1,5 @@
 import { generateEsewaSignature, verifyEsewaStatus, ESEWA_PRODUCT_CODE } from "../utils/esewa.js";
-import { createAdminClient } from "../config/supabase.js";
+import prisma from "../config/prisma.js";
 
 function sanitize(str) {
   if (!str || typeof str !== "string") return "";
@@ -19,7 +19,6 @@ export const initiateDonation = async (req, res) => {
     message: donorMessage,
     gateway,
   } = req.body;
-  const supabase = req.supabase;
 
   if (!streamerUsername || typeof streamerUsername !== "string") {
     return res.status(400).json({ error: "Streamer username is required." });
@@ -35,34 +34,26 @@ export const initiateDonation = async (req, res) => {
 
   try {
     // 1. Find streamer
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("username", streamerUsername)
-      .single();
+    const profile = await prisma.profile.findUnique({
+      where: { username: streamerUsername },
+      select: { id: true },
+    });
 
-    if (profileError || !profile) {
+    if (!profile) {
       return res.status(404).json({ error: "Streamer not found" });
     }
 
     // 2. Create donation record (pending)
-    const supabaseAdmin = createAdminClient();
-    const { data: donation, error: donationError } = await supabaseAdmin
-      .from("donations")
-      .insert([
-        {
-          streamer_id: profile.id,
-          supporter_name: sanitizeName(senderName),
-          amount: parsedAmount,
-          message: sanitize(donorMessage) || "No message",
-          payment_gateway: selectedGateway,
-          status: "pending",
-        },
-      ])
-      .select()
-      .single();
-
-    if (donationError) throw donationError;
+    const donation = await prisma.donation.create({
+      data: {
+        streamerId: profile.id,
+        supporterName: sanitizeName(senderName),
+        amount: parsedAmount,
+        message: sanitize(donorMessage) || "No message",
+        paymentGateway: selectedGateway,
+        status: "pending",
+      },
+    });
 
     let paymentData = null;
 
@@ -146,12 +137,10 @@ export const verifyEsewa = async (req, res) => {
     });
 
     // Check for duplicate verification
-    const supabaseAdmin = createAdminClient();
-    const { data: existingDonation } = await supabaseAdmin
-      .from("donations")
-      .select("status")
-      .eq("id", transaction_uuid)
-      .single();
+    const existingDonation = await prisma.donation.findUnique({
+      where: { id: transaction_uuid },
+      select: { status: true },
+    });
 
     if (existingDonation?.status === "verified") {
       console.log("[ESEWA] Payment already verified");
@@ -193,28 +182,31 @@ export const verifyEsewa = async (req, res) => {
     }
 
     if (isComplete) {
-      // 4. Update donation status and get streamer username for socket
-      const { data: donation, error } = await supabaseAdmin
-        .from("donations")
-        .update({
-          status: "verified",
-          transaction_id: transaction_code || (statusData && statusData.transaction_uuid),
-          gateway_response: statusData || decodedData,
-        })
-        .eq("id", transaction_uuid)
-        .select("*, profiles(username)")
-        .single();
+      // 4. Update donation status, earnings, and get streamer username for socket
+      const donation = await prisma.$transaction(async (tx) => {
+        const updated = await tx.donation.update({
+          where: { id: transaction_uuid },
+          data: {
+            status: "verified",
+            transactionId: transaction_code || (statusData && statusData.transaction_uuid),
+            gatewayResponse: statusData || decodedData,
+          },
+          include: { streamer: { select: { username: true } } },
+        });
 
-      if (error) {
-        console.error("[ESEWA] Supabase update error:", error);
-        throw error;
-      }
+        await tx.profile.update({
+          where: { id: updated.streamerId },
+          data: { totalEarnings: { increment: updated.amount } },
+        });
+
+        return updated;
+      });
 
       // 5. TRIGGER OBS ALERT via Socket.io
-      const streamerUsername = donation.profiles?.username;
+      const streamerUsername = donation.streamer?.username;
       if (streamerUsername) {
         io.to(streamerUsername).emit("new-donation", {
-          name: donation.supporter_name,
+          name: donation.supporterName,
           amount: donation.amount,
           message: donation.message,
         });
@@ -226,7 +218,7 @@ export const verifyEsewa = async (req, res) => {
         success: true,
         message: "Donation verified and alert triggered",
         donation: {
-          name: donation.supporter_name,
+          name: donation.supporterName,
           amount: donation.amount,
           streamer: streamerUsername
         }

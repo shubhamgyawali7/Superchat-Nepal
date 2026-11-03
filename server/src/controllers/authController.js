@@ -1,96 +1,167 @@
+import bcrypt from "bcryptjs";
+import prisma from "../config/prisma.js";
+import { toProfile } from "../utils/serializers.js";
+import {
+  COOKIE_NAME,
+  clearCookieOptions,
+  cookieOptions,
+  signToken,
+} from "../utils/auth.js";
+
+const normalizeEmail = (email) =>
+  typeof email === "string" ? email.trim().toLowerCase() : "";
+
+const normalizeUsername = (username) =>
+  typeof username === "string" ? username.trim() : "";
+
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const isValidUsername = (username) => /^[a-zA-Z0-9_.-]{3,30}$/.test(username);
+
+const publicUser = (user) => ({
+  id: user.id,
+  email: user.email,
+  username: user.profile?.username,
+  created_at: user.createdAt,
+});
+
 // Register Function
 export const register = async (req, res) => {
-  const { email, password, username } = req.body;
+  const email = normalizeEmail(req.body?.email);
+  const username = normalizeUsername(req.body?.username);
+  const password = req.body?.password;
 
-  if (!email || !password || !username)
-    return res.status(400).json({ error: "Email, password, and username are required." });
-
-  try {
-    const { data, error } = await req.supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          username: username,
-        },
-        emailRedirectTo: `${process.env.SERVER_URL || "http://localhost:5000"}/api/auth/callback`,
-      },
-    });
-
-    if (error) return res.status(400).json({ error: error.message });
-
-    res.status(201).json({
-      message: "Check your email for a verification link.",
-      data,
-    });
-  } catch (err) {
-    console.error("Registration Error:", err);
-    res.status(500).json({ error: "An internal server error occurred during registration." });
+  if (!email || !password || !username) {
+    return res
+      .status(400)
+      .json({ error: "Email, password, and username are required." });
   }
-};
 
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: "Please provide a valid email address." });
+  }
 
-// Callback Function (PKCE Flow)
-export const callback = async (req, res) => {
+  if (!isValidUsername(username)) {
+    return res.status(400).json({
+      error:
+        "Username must be 3-30 characters and contain only letters, numbers, dots, dashes, or underscores.",
+    });
+  }
+
+  if (typeof password !== "string" || password.length < 8) {
+    return res
+      .status(400)
+      .json({ error: "Password must be at least 8 characters long." });
+  }
+
   try {
-    const code = req.query.code;
-    const supabase = req.supabase;
+    const existing = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email },
+          { profile: { username: { equals: username, mode: "insensitive" } } },
+        ],
+      },
+      include: { profile: true },
+    });
 
-    if (!code) {
-      return res.status(400).json({ error: "No code provided in the callback" });
+    if (existing) {
+      const conflict =
+        existing.email === email
+          ? "An account with this email already exists."
+          : "This username is already taken.";
+      return res.status(409).json({ error: conflict });
     }
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const passwordHash = await bcrypt.hash(password, 10);
 
-    if (error) {
-      // ✅ FIX: was `res.status(501).status(400)` — chained double status, invalid
-      return res.status(400).json({ error: error.message });
-    }
+    const user = await prisma.$transaction(async (tx) => {
+      const createdUser = await tx.user.create({
+        data: { email, passwordHash },
+      });
 
-    // Redirect to dashboard after successful email verification
-    return res.redirect(`${process.env.CLIENT_URL || "http://localhost:3000"}/dashboard`);
+      await tx.profile.create({
+        data: {
+          id: createdUser.id,
+          username,
+          displayName: username,
+        },
+      });
+
+      return tx.user.findUnique({
+        where: { id: createdUser.id },
+        include: { profile: true },
+      });
+    });
+
+    const token = signToken({ ...user, username: user.profile.username });
+    res.cookie(COOKIE_NAME, token, cookieOptions());
+
+    return res.status(201).json({
+      message: "Account created successfully.",
+      user: publicUser(user),
+      profile: toProfile(user.profile),
+    });
   } catch (err) {
-    console.error("Callback Error:", err);
-    res.status(500).json({ error: "Error during session exchange" });
+    if (err.code === "P2002") {
+      return res
+        .status(409)
+        .json({ error: "That email or username is already in use." });
+    }
+    console.error("Registration Error:", err);
+    return res
+      .status(500)
+      .json({ error: "An internal server error occurred during registration." });
   }
 };
 
 // Login Function
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  const email = normalizeEmail(req.body?.email);
+  const password = req.body?.password;
 
-  if (!email || !password)
+  if (!email || !password) {
     return res.status(400).json({ error: "Email and password are required." });
+  }
 
   try {
-    const { data, error } = await req.supabase.auth.signInWithPassword({
-      email,
-      password,
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { profile: true },
     });
 
-    if (error) return res.status(401).json({ error: error.message });
+    if (!user?.profile) {
+      return res.status(401).json({ error: "Invalid email or password." });
+    }
+
+    const valid = await bcrypt.compare(password, user.passwordHash);
+    if (!valid) {
+      return res.status(401).json({ error: "Invalid email or password." });
+    }
+
+    const token = signToken({ ...user, username: user.profile.username });
+    res.cookie(COOKIE_NAME, token, cookieOptions());
 
     return res.status(200).json({
       message: "Login successful",
-      user: data.user,
-      session: data.session,
+      user: publicUser(user),
+      profile: toProfile(user.profile),
     });
   } catch (err) {
     console.error("Login Error:", err);
-    res.status(500).json({ error: "Internal server error during login." });
+    return res.status(500).json({ error: "Internal server error during login." });
   }
+};
+
+// Current user
+export const me = async (req, res) => {
+  return res.status(200).json({
+    user: req.user,
+    profile: toProfile(req.profile),
+  });
 };
 
 // Logout Function
 export const logout = async (req, res) => {
-  try {
-    const { error } = await req.supabase.auth.signOut();
-
-    if (error) return res.status(500).json({ error: error.message });
-
-    return res.status(200).json({ message: "Logged out successfully" });
-  } catch (err) {
-    console.error("Logout Error:", err);
-    res.status(500).json({ error: "Internal server error during logout." });
-  }
+  res.clearCookie(COOKIE_NAME, clearCookieOptions());
+  return res.status(200).json({ message: "Logged out successfully" });
 };

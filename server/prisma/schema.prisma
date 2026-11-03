@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  profile      Profile?
+
+  @@map("users")
+}
+
+model Profile {
+  id                      String   @id @db.Uuid
+  user                    User     @relation(fields: [id], references: [id], onDelete: Cascade)
+  username                String   @unique
+  displayName             String?  @map("display_name")
+  bio                     String?
+  avatarUrl               String?  @map("avatar_url")
+  themeColor              String?  @default("#f97316") @map("theme_color")
+  welcomeTitle            String?  @default("Support My Stream") @map("welcome_title")
+  welcomeSub              String?  @default("Your support helps me keep creating content!") @map("welcome_sub")
+  youtubeUrl              String?  @map("youtube_url")
+  facebookUrl             String?  @map("facebook_url")
+  upiId                   String?  @map("upi_id")
+  alertMinAmount          Float    @default(0) @map("alert_min_amount")
+  alertDuration           Int      @default(5) @map("alert_duration")
+  alertGifUrl             String?  @map("alert_gif_url")
+  alertFontFamily         String?  @default("Inter, sans-serif") @map("alert_font_family")
+  alertTextColor          String?  @default("#ffffff") @map("alert_text_color")
+  alertAmountColor        String?  @default("#34d399") @map("alert_amount_color")
+  alertMessageColor       String?  @default("#f1f5f9") @map("alert_message_color")
+  alertBgColor            String?  @default("rgba(0,0,0,0.85)") @map("alert_bg_color")
+  alertBorderColor        String?  @default("") @map("alert_border_color")
+  alertPosition           String?  @default("top") @map("alert_position")
+  alertAnimation          String?  @default("slide") @map("alert_animation")
+  ttsEnabled              Boolean? @default(true) @map("tts_enabled")
+  ttsRate                 Float?   @default(0.9) @map("tts_rate")
+  recentDonationsPosition String?  @default("bottom-left") @map("recent_donations_position")
+  recentDonationsCount    Int?     @default(5) @map("recent_donations_count")
+  totalEarnings           Float    @default(0) @map("total_earnings")
+  lastClearedAt           DateTime? @map("last_cleared_at") @db.Timestamptz(6)
+  createdAt               DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  donations               Donation[]
+
+  @@index([username])
+  @@map("profiles")
+}
+
+model Donation {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  streamerId      String   @map("streamer_id") @db.Uuid
+  streamer        Profile  @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+  supporterName   String   @default("Anonymous Supporter") @map("supporter_name")
+  amount          Float
+  message         String?  @default("No message")
+  paymentGateway  String?  @default("esewa") @map("payment_gateway")
+  status          String?  @default("pending")
+  transactionId   String?  @map("transaction_id")
+  gatewayResponse Json?    @map("gateway_response")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([streamerId])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("donations")
+}

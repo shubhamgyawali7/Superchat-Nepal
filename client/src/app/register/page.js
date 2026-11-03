@@ -1,9 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const { register, error: authError } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
@@ -29,10 +31,12 @@ export default function RegisterPage() {
     const result = await register(formData.email, formData.password, formData.username);
 
     if (result.success) {
-      setSuccess(result.message || "Registration successful! Please check your email.");
-    } else {
-      setError(result.error || "Registration failed");
+      setSuccess(result.message || "Registration successful!");
+      router.push("/dashboard");
+      return;
     }
+
+    setError(result.error || "Registration failed");
     setIsLoading(false);
   };
 

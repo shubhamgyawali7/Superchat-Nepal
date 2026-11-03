@@ -25,7 +25,7 @@ export default function DashboardClient({ user, stats, serverUrl, overlayUrl, to
     if (!confirm("Are you sure you want to clear recent donations? This will start your stream data fresh.")) return;
     
     try {
-      const res = await fetch(`${serverUrl}/api/streamer/reset-donations`, {
+      const res = await fetch("/api/streamer/reset-donations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -61,7 +61,7 @@ export default function DashboardClient({ user, stats, serverUrl, overlayUrl, to
     if (isTesting) return;
     setIsTesting(true);
     try {
-      const res = await fetch(`${serverUrl}/api/streamer/test-alert`, {
+      const res = await fetch("/api/streamer/test-alert", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

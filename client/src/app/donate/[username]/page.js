@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser, serverFetch } from "@/lib/serverApi";
 import { Skeleton } from "@/components/common/Skeleton";
 
 const DonationForm = dynamic(() => import("./DonationForm"), {
@@ -18,22 +18,18 @@ const DonationForm = dynamic(() => import("./DonationForm"), {
 
 export default async function DonationPage({ params }) {
   const { username } = await params;
-  const supabase = await createClient();
 
-  const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
+  const user = await getCurrentUser();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const res = await serverFetch(
+    `/api/streamer/profile/${encodeURIComponent(username)}`
+  );
 
-  const { data: streamer, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("username", username)
-    .single();
-
-  if (error || !streamer) {
+  if (!res.ok) {
     notFound();
   }
 
+  const streamer = await res.json();
   const themeColor = streamer.theme_color || "#f97316";
   const isOwner = user?.id === streamer.id;
 
@@ -122,10 +118,7 @@ export default async function DonationPage({ params }) {
       </div>
 
       <div className="w-full max-w-xl relative z-10 px-4">
-        <DonationForm
-          streamer={streamer}
-          serverUrl={SERVER_URL}
-        />
+        <DonationForm streamer={streamer} />
       </div>
 
       {/* Trust Footer */}

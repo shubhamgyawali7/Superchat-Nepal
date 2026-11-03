@@ -1,7 +1,9 @@
 import express from "express";
 import {
+  getMyProfile,
   getPublicProfile,
   getDashboardData,
+  getDonationHistory,
   updateProfile,
   sendTestAlert,
   resetDonations,
@@ -10,6 +12,12 @@ import {
 import { auth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
+
+// Private: Get own full profile (authenticated)
+router.get("/me", auth, getMyProfile);
+
+// Private: Get all donation history (authenticated)
+router.get("/donations", auth, getDonationHistory);
 
 // Public: Get streamer profile for donation page
 router.get("/profile/:username", getPublicProfile);

@@ -10,31 +10,44 @@ import { Server } from "socket.io";
 import auth from "./routes/auth.js";
 import streamer from "./routes/streamer.js";
 import donation from "./routes/donation.js";
-import { createClient } from "./config/supabase.js";
 const app = express();
 const httpServer = createServer(app);
+
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:3001",
+].filter(Boolean);
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+};
+
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "*",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  }),
-);
+app.use(cors(corsOptions));
 
 const PORT = process.env.PORT || 5000;
 
 app.use((req, res, next) => {
-  req.supabase = createClient(req, res);
   req.io = io; // Attach socket.io instance to request
   next();
 });
@@ -53,7 +66,7 @@ app.use('/api/donations', donation);
 // Socket.io connection logic
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
-  
+
   socket.on("join-streamer", (username) => {
     socket.join(username);
     console.log(`Socket ${socket.id} joined room: ${username}`);

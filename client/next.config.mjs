@@ -3,11 +3,15 @@ const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000";
 const serverHost = serverUrl.replace(/^https?:\/\//, "");
 const wsProtocol = serverUrl.startsWith("https") ? "wss" : "ws";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseHost = supabaseUrl.replace(/^https?:\/\//, "");
-const supabaseWsProtocol = supabaseUrl.startsWith("https") ? "wss" : "ws";
-
 const nextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${serverUrl}/api/:path*`,
+      },
+    ];
+  },
   async headers() {
     return [
       {
@@ -21,7 +25,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https: blob:",
-              `connect-src 'self' ${serverUrl} ${wsProtocol}://${serverHost} ${supabaseUrl} ${supabaseWsProtocol}://${supabaseHost}`,
+              `connect-src 'self' ${serverUrl} ${wsProtocol}://${serverHost}`,
               "media-src 'self' https:",
               "frame-src 'self' https://*.khalti.com https://*.esewa.com.np",
             ].join('; '),

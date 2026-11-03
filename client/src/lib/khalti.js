@@ -10,16 +10,16 @@
 //
 // Docs: https://docs.khalti.com/khalti-epayment/
 
-const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000";
+const API_BASE = "/api";
 
 // Khalti initiate endpoint (called server-side for security — see note below)
 // In a real app you should NOT call Khalti's API directly from the browser
 // because it requires your secret key. Route it through your Express backend.
-const KHALTI_INITIATE_URL = `${SERVER_URL}/api/donations/khalti-initiate`;
+const KHALTI_INITIATE_URL = `${API_BASE}/donations/khalti-initiate`;
 
 // ── Step 1: Create pending donation record ────────────────────────────────────
 export async function initiateDonation({ streamerUsername, amount, senderName, message }) {
-    const res = await fetch(`${SERVER_URL}/api/donations/initiate`, {
+    const res = await fetch(`${API_BASE}/donations/initiate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ streamerUsername, amount, senderName, message }),
@@ -44,7 +44,7 @@ export async function initiateKhaltiPayment({ donationId, amount, senderName, st
             amount: Math.round(amount * 100),
             customerName: senderName || "Anonymous",
             streamerUsername,
-            returnUrl: `${SERVER_URL}/api/donations/verify-khalti`,
+            returnUrl: `${window.location.origin}${API_BASE}/donations/verify-khalti`,
             websiteUrl: window.location.origin,
         }),
     });

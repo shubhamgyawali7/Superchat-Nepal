@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
 
-export default function DonationForm({ streamer, serverUrl }) {
+export default function DonationForm({ streamer }) {
   const router = useRouter();
   const { addToast } = useToast();
   const [amount, setAmount] = useState("");
@@ -58,7 +58,7 @@ export default function DonationForm({ streamer, serverUrl }) {
         return;
       }
 
-      const response = await fetch(`${serverUrl}/api/donations/initiate`, {
+      const response = await fetch("/api/donations/initiate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

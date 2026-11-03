@@ -1,9 +1,8 @@
 import Link from 'next/link';
-import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser } from "@/lib/serverApi";
 
 export default async function LandingPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   return (
     <div className="min-h-screen bg-[#020617] text-white selection:bg-orange-500/30 font-sans overflow-x-hidden">

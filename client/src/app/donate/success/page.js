@@ -31,7 +31,7 @@ function DonateSuccessContent() {
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/donations/verify-esewa`,
+          "/api/donations/verify-esewa",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

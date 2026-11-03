@@ -1,18 +1,13 @@
 import React from 'react';
 import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser, serverFetch } from "@/lib/serverApi";
 
 export default async function HistoryPage() {
-  const supabase = await createClient();
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) redirect("/login");
-
-  const { data: donations } = await supabase
-    .from("donations")
-    .select("*")
-    .eq("streamer_id", user.id)
-    .order("created_at", { ascending: false });
+  const res = await serverFetch("/api/streamer/donations");
+  const donations = res.ok ? await res.json() : [];
 
   return (
     <div className="text-foreground" style={{ fontFamily: "'DM Mono', monospace" }}>
