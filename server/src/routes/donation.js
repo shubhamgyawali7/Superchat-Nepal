@@ -13,6 +13,7 @@ router.get("/verify-esewa", verifyEsewa);
 router.post("/verify-esewa", verifyEsewa);
 
 // 3. Callback from Khalti
+router.get("/verify-khalti", verifyKhalti);
 router.post("/verify-khalti", verifyKhalti);
 
 export default router;

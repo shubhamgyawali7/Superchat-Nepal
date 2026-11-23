@@ -15,47 +15,78 @@ function DonateSuccessContent() {
   useEffect(() => {
     const verifyPayment = async () => {
       const dataParam = searchParams.get("data");
+      const pidxParam = searchParams.get("pidx");
+      const khaltiStatus = searchParams.get("status");
+      const purchaseOrderId = searchParams.get("purchase_order_id");
 
-      if (!dataParam) {
-        const donationId = sessionStorage.getItem("pending_donation_id");
-        if (!donationId) {
-          setStatus("completed");
-          return;
-        }
+      // Handle user cancellation on Khalti
+      if (khaltiStatus && khaltiStatus.toLowerCase().includes("cancel")) {
         setStatus("failed");
-        setErrorMsg("No payment data received from gateway.");
+        setErrorMsg("Payment was canceled on Khalti.");
         return;
       }
 
-      try {
-        const response = await fetch(
-          "/api/donations/verify-esewa",
-          {
+      // 1. Khalti Verification
+      if (pidxParam) {
+        try {
+          const response = await fetch("/api/donations/verify-khalti", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data: dataParam }),
-          }
-        );
-        if (response.ok) {
-          const result = await response.json();
-          if (result.success) {
+            body: JSON.stringify({
+              pidx: pidxParam,
+              purchase_order_id: purchaseOrderId,
+            }),
+          });
+          const result = await response.json().catch(() => ({}));
+          if (response.ok && result.success) {
             setDonateData(result.donation);
             setStatus("completed");
             sessionStorage.removeItem("pending_donation_id");
           } else {
             setStatus("failed");
-            setErrorMsg(result.message || "Verification failed");
+            setErrorMsg(result.message || result.error || "Khalti verification failed");
           }
-        } else {
-          const err = await response.json().catch(() => ({}));
+        } catch (err) {
+          console.error("Khalti verification error:", err);
           setStatus("failed");
-          setErrorMsg(err.error || "Verification failed");
+          setErrorMsg(err.message || "Network error while verifying Khalti");
         }
-      } catch (err) {
-        console.error("Verification error:", err);
-        setStatus("failed");
-        setErrorMsg(err.message || "Network error");
+        return;
       }
+
+      // 2. eSewa Verification
+      if (dataParam) {
+        try {
+          const response = await fetch("/api/donations/verify-esewa", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data: dataParam }),
+          });
+          const result = await response.json().catch(() => ({}));
+          if (response.ok && result.success) {
+            setDonateData(result.donation);
+            setStatus("completed");
+            sessionStorage.removeItem("pending_donation_id");
+          } else {
+            setStatus("failed");
+            setErrorMsg(result.message || result.error || "eSewa verification failed");
+          }
+        } catch (err) {
+          console.error("eSewa verification error:", err);
+          setStatus("failed");
+          setErrorMsg(err.message || "Network error");
+        }
+        return;
+      }
+
+      // 3. Fallback check
+      const donationId = sessionStorage.getItem("pending_donation_id");
+      if (!donationId) {
+        setStatus("completed");
+        return;
+      }
+      setStatus("failed");
+      setErrorMsg("No payment data received from gateway.");
     };
 
     verifyPayment();

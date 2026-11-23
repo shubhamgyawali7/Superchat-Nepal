@@ -1,4 +1,5 @@
 import { generateEsewaSignature, verifyEsewaStatus, ESEWA_PRODUCT_CODE } from "../utils/esewa.js";
+import { initiateKhaltiPayment, verifyKhaltiPayment } from "../utils/khalti.js";
 import prisma from "../config/prisma.js";
 
 function sanitize(str) {
@@ -84,6 +85,35 @@ export const initiateDonation = async (req, res) => {
       };
 
       paymentData = { formData };
+    } else if (selectedGateway === "khalti") {
+      const amountInPaisa = Math.round(parsedAmount * 100);
+      const clientBase = process.env.CLIENT_URL || "http://localhost:3000";
+      const returnUrl = `${clientBase}/donate/${streamerUsername}/success?gateway=khalti`;
+      const websiteUrl = clientBase;
+
+      const khaltiResponse = await initiateKhaltiPayment({
+        returnUrl,
+        websiteUrl,
+        amountInPaisa,
+        purchaseOrderId: donation.id,
+        purchaseOrderName: `Superchat for ${streamerUsername}`,
+        customerInfo: {
+          name: donation.supporterName,
+        },
+      });
+
+      await prisma.donation.update({
+        where: { id: donation.id },
+        data: {
+          transactionId: khaltiResponse.pidx,
+          gatewayResponse: khaltiResponse,
+        },
+      });
+
+      paymentData = {
+        payment_url: khaltiResponse.payment_url,
+        pidx: khaltiResponse.pidx,
+      };
     }
 
     return res.status(200).json({
@@ -97,9 +127,13 @@ export const initiateDonation = async (req, res) => {
       stack: err.stack,
       body: req.body,
     });
+    let details = err.message;
+    if (err.message?.includes("401") || err.message?.includes("Invalid token")) {
+      details = "Invalid Khalti Secret Key (401). Please update KHALTI_SECRET_KEY in server/.env with your key from test-admin.khalti.com";
+    }
     return res.status(500).json({
       error: "Failed to initiate donation",
-      details: err.message,
+      details,
     });
   }
 };
@@ -234,5 +268,104 @@ export const verifyEsewa = async (req, res) => {
 };
 
 export const verifyKhalti = async (req, res) => {
-  res.status(501).json({ message: "Khalti verification logic to be implemented" });
+  const pidx = req.body?.pidx || req.query?.pidx;
+  const purchaseOrderId = req.body?.purchase_order_id || req.query?.purchase_order_id;
+  const io = req.io;
+
+  console.log("[KHALTI-VERIFY] Method:", req.method, "PIDX:", pidx);
+
+  if (!pidx) {
+    return res.status(400).json({ error: "Missing pidx for Khalti verification" });
+  }
+
+  try {
+    // 1. Verify with Khalti Lookup API
+    const khaltiData = await verifyKhaltiPayment(pidx);
+    console.log("[KHALTI-VERIFY] Status result:", khaltiData);
+
+    const isComplete = khaltiData.status === "Completed";
+
+    if (!isComplete) {
+      return res.status(400).json({
+        success: false,
+        message: `Payment status is ${khaltiData.status || "Incomplete"}`,
+        khaltiData,
+      });
+    }
+
+    // 2. Find donation by transactionId or purchase_order_id
+    const donation = await prisma.donation.findFirst({
+      where: {
+        OR: [
+          { transactionId: pidx },
+          ...(purchaseOrderId ? [{ id: purchaseOrderId }] : []),
+          ...(khaltiData.purchase_order_id ? [{ id: khaltiData.purchase_order_id }] : []),
+        ],
+      },
+      include: { streamer: { select: { username: true } } },
+    });
+
+    if (!donation) {
+      return res.status(404).json({ error: "Donation record not found" });
+    }
+
+    if (donation.status === "verified") {
+      return res.status(200).json({
+        success: true,
+        message: "Already verified",
+        donation: {
+          name: donation.supporterName,
+          amount: donation.amount,
+          streamer: donation.streamer?.username,
+        },
+      });
+    }
+
+    // 3. Update status & increment earnings in transaction
+    const updated = await prisma.$transaction(async (tx) => {
+      const up = await tx.donation.update({
+        where: { id: donation.id },
+        data: {
+          status: "verified",
+          transactionId: khaltiData.transaction_id || pidx,
+          gatewayResponse: khaltiData,
+        },
+        include: { streamer: { select: { username: true } } },
+      });
+
+      await tx.profile.update({
+        where: { id: up.streamerId },
+        data: { totalEarnings: { increment: up.amount } },
+      });
+
+      return up;
+    });
+
+    // 4. Trigger OBS Real-time Alert via Socket.io
+    const streamerUsername = updated.streamer?.username;
+    if (streamerUsername && io) {
+      io.to(streamerUsername).emit("new-donation", {
+        name: updated.supporterName,
+        amount: updated.amount,
+        message: updated.message,
+      });
+      console.log("[KHALTI] Alert emitted to room:", streamerUsername);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Khalti donation verified and alert triggered",
+      donation: {
+        name: updated.supporterName,
+        amount: updated.amount,
+        streamer: streamerUsername,
+      },
+    });
+  } catch (err) {
+    console.error("[KHALTI-VERIFY] Error:", err.message, err.stack);
+    return res.status(500).json({
+      error: "Khalti verification failed",
+      details: err.message,
+    });
+  }
 };

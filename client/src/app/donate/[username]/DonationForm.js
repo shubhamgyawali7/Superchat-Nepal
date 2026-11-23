@@ -53,11 +53,6 @@ export default function DonationForm({ streamer }) {
 
     setIsLoading(true);
     try {
-      if (paymentMethod === "khalti") {
-        router.push("/donate/khalti-coming-soon");
-        return;
-      }
-
       const response = await fetch("/api/donations/initiate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -72,7 +67,10 @@ export default function DonationForm({ streamer }) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Failed to initiate donation");
+        const errorText = errorData.details
+          ? `${errorData.error}: ${errorData.details}`
+          : errorData.error || "Failed to initiate donation";
+        throw new Error(errorText);
       }
 
       const data = await response.json();
@@ -91,8 +89,10 @@ export default function DonationForm({ streamer }) {
         }
         document.body.appendChild(form);
         form.submit();
+      } else if (paymentMethod === "khalti" && data.paymentData?.payment_url) {
+        window.location.href = data.paymentData.payment_url;
       } else {
-        router.push(`/donate/success?name=${encodeURIComponent(name)}&amount=${amount}`);
+        router.push(`/donate/${streamer.username}/success?name=${encodeURIComponent(name)}&amount=${amount}`);
       }
     } catch (err) {
       console.error("Payment error:", err);
@@ -248,7 +248,7 @@ export default function DonationForm({ streamer }) {
                     <span className="w-2 h-2 rounded-full bg-purple-400" />
                   )}
                 </div>
-                <p className="text-[10px] text-slate-400 font-medium">Coming Soon</p>
+                <p className="text-[10px] text-purple-300/80 font-medium">Instant Sandbox / ePayment</p>
               </button>
             </div>
           </div>
