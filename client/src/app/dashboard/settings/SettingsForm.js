@@ -223,14 +223,12 @@ export default function SettingsForm({ initialProfile }) {
               <button
                 type="button"
                 onClick={toggle("tts_enabled")}
-                className={`relative w-14 h-7 rounded-full transition-colors ${
-                  formData.tts_enabled ? "bg-orange-500" : "bg-white/10"
-                }`}
+                className={`relative w-14 h-7 rounded-full transition-colors ${formData.tts_enabled ? "bg-orange-500" : "bg-white/10"
+                  }`}
               >
                 <span
-                  className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform ${
-                    formData.tts_enabled ? "translate-x-7" : ""
-                  }`}
+                  className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform ${formData.tts_enabled ? "translate-x-7" : ""
+                    }`}
                 />
               </button>
             </Field>

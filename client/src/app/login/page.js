@@ -17,9 +17,18 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    const email = (data.get("email") || formData.email || "").toString().trim();
+    const password = (data.get("password") || formData.password || "").toString();
+
+    if (!email || !password) {
+      setError("Email and password are required.");
+      return;
+    }
+
     setIsLoading(true);
     setError("");
-    const result = await login(formData.email, formData.password);
+    const result = await login(email, password);
     if (result.success) {
       router.push("/dashboard");
     } else {
@@ -75,9 +84,12 @@ export default function LoginPage() {
               </label>
               <input
                 type="email"
+                name="email"
+                autoComplete="email"
                 required
                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3.5 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
                 placeholder="streamer@example.com"
+                value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
             </div>
@@ -90,9 +102,12 @@ export default function LoginPage() {
               </div>
               <input
                 type="password"
+                name="password"
+                autoComplete="current-password"
                 required
                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3.5 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
                 placeholder="••••••••"
+                value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
             </div>

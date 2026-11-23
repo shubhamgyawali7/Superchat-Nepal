@@ -108,9 +108,15 @@ export const register = async (req, res) => {
         .json({ error: "That email or username is already in use." });
     }
     console.error("Registration Error:", err);
-    return res
-      .status(500)
-      .json({ error: "An internal server error occurred during registration." });
+    const detail =
+      err?.message?.includes("JWT_SECRET")
+        ? "Server configuration error: JWT_SECRET environment variable is missing."
+        : err?.code === "P1001" || err?.code === "P1000"
+        ? "Database connection failed. Please check DATABASE_URL in server environment variables."
+        : err?.code === "P2021"
+        ? "Database table does not exist. Run 'npx prisma db push' on your database."
+        : "An internal server error occurred during registration.";
+    return res.status(500).json({ error: detail });
   }
 };
 
@@ -148,7 +154,15 @@ export const login = async (req, res) => {
     });
   } catch (err) {
     console.error("Login Error:", err);
-    return res.status(500).json({ error: "Internal server error during login." });
+    const detail =
+      err?.message?.includes("JWT_SECRET")
+        ? "Server configuration error: JWT_SECRET environment variable is missing on your hosting provider."
+        : err?.code === "P1001" || err?.code === "P1000"
+        ? "Database connection failed. Please check DATABASE_URL in your hosting provider environment variables."
+        : err?.code === "P2021"
+        ? "Database table does not exist. Run 'npx prisma db push' against your database."
+        : err?.message || "Internal server error during login.";
+    return res.status(500).json({ error: detail });
   }
 };
 

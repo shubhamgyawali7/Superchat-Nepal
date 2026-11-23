@@ -20,18 +20,24 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
 
-    if (formData.password !== formData.confirmPassword) {
+    const data = new FormData(e.currentTarget);
+    const username = (data.get("username") || formData.username || "").toString().toLowerCase().trim();
+    const email = (data.get("email") || formData.email || "").toString().trim();
+    const password = (data.get("password") || formData.password || "").toString();
+    const confirmPassword = (data.get("confirmPassword") || formData.confirmPassword || "").toString();
+
+    if (password !== confirmPassword) {
       setError("Passwords do not match!");
       return;
     }
 
-    if (formData.password.length < 6) {
+    if (password.length < 6) {
       setError("Password must be at least 6 characters.");
       return;
     }
 
     setIsLoading(true);
-    const result = await register(formData.email, formData.password, formData.username);
+    const result = await register(email, password, username);
 
     if (result.success) {
       setSuccess(result.message || "Registration successful! You can now log in.");
@@ -97,6 +103,8 @@ export default function RegisterPage() {
                 <span className="absolute left-4 top-3.5 text-xs text-slate-500 font-mono">@</span>
                 <input
                   type="text"
+                  name="username"
+                  autoComplete="username"
                   required
                   className="w-full bg-black/40 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
                   placeholder="yourstreamname"
@@ -120,6 +128,8 @@ export default function RegisterPage() {
               </label>
               <input
                 type="email"
+                name="email"
+                autoComplete="email"
                 required
                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
                 placeholder="streamer@example.com"
@@ -134,6 +144,8 @@ export default function RegisterPage() {
               </label>
               <input
                 type="password"
+                name="password"
+                autoComplete="new-password"
                 required
                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
                 placeholder="••••••••"
@@ -148,6 +160,8 @@ export default function RegisterPage() {
               </label>
               <input
                 type="password"
+                name="confirmPassword"
+                autoComplete="new-password"
                 required
                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
                 placeholder="••••••••"

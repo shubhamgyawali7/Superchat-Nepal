@@ -8,6 +8,27 @@ const jsonRequest = (path, options = {}) =>
     ...options,
   });
 
+const parseJsonResponse = async (res, fallbackMsg = "Request failed") => {
+  let data = null;
+  try {
+    data = await res.json();
+  } catch {
+    // Response was not JSON (e.g. Next.js proxy ECONNREFUSED HTML)
+  }
+
+  if (!res.ok) {
+    if (!data || res.status === 502 || res.status === 504 || res.status === 500) {
+      throw new Error(
+        data?.error ||
+          "Cannot connect to the backend server. Please make sure the server is running on port 5000 (cd server && npm run dev)."
+      );
+    }
+    throw new Error(data?.error || fallbackMsg);
+  }
+
+  return data || {};
+};
+
 export function useAuth() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -27,10 +48,16 @@ export function useAuth() {
         return null;
       }
 
-      const data = await res.json();
-      setUser(data.user ?? null);
-      setProfile(data.profile ?? null);
-      return data.user ?? null;
+      let data = null;
+      try {
+        data = await res.json();
+      } catch {
+        // Not JSON
+      }
+
+      setUser(data?.user ?? null);
+      setProfile(data?.profile ?? null);
+      return data?.user ?? null;
     } catch (err) {
       console.error("Session fetch error:", err);
       setUser(null);
@@ -54,8 +81,7 @@ export function useAuth() {
         method: "POST",
         body: JSON.stringify({ email, password, username }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Registration failed");
+      const data = await parseJsonResponse(res, "Registration failed");
 
       setUser(data.user ?? null);
       setProfile(data.profile ?? null);
@@ -77,8 +103,7 @@ export function useAuth() {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Login failed");
+      const data = await parseJsonResponse(res, "Login failed");
 
       setUser(data.user ?? null);
       setProfile(data.profile ?? null);
