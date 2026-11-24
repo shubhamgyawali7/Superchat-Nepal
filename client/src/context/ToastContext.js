@@ -1,5 +1,15 @@
 "use client";
+
 import React, { createContext, useContext, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import Icon from "@/components/common/Icon";
+import {
+  CheckmarkCircle01Icon,
+  Alert01Icon,
+  Notification01Icon,
+  InformationCircleIcon,
+  Cancel01Icon,
+} from "@hugeicons/core-free-icons";
 
 const ToastContext = createContext();
 
@@ -18,42 +28,61 @@ export function ToastProvider({ children }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const getIcon = (type) => {
+    switch (type) {
+      case "success":
+        return CheckmarkCircle01Icon;
+      case "error":
+        return Alert01Icon;
+      case "warning":
+        return Notification01Icon;
+      default:
+        return InformationCircleIcon;
+    }
+  };
+
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-2.5 pointer-events-none max-w-sm w-full px-4 sm:px-0">
-        {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            className={`pointer-events-auto flex items-center justify-between p-4 rounded-2xl shadow-2xl border backdrop-blur-2xl transition-all animate-slide-in ${
-              toast.type === "success"
-                ? "bg-[#0c1220]/95 border-emerald-500/40 text-emerald-400 shadow-emerald-500/10"
-                : toast.type === "error"
-                ? "bg-[#0c1220]/95 border-red-500/40 text-red-400 shadow-red-500/10"
-                : toast.type === "warning"
-                ? "bg-[#0c1220]/95 border-amber-500/40 text-amber-400 shadow-amber-500/10"
-                : "bg-[#0c1220]/95 border-orange-500/40 text-orange-400 shadow-orange-500/10"
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-base">
-                {toast.type === "success" && "✅"}
-                {toast.type === "error" && "⚠️"}
-                {toast.type === "warning" && "🔔"}
-                {toast.type === "info" && "⚡"}
-              </span>
-              <span className="text-xs font-bold text-white leading-snug">
-                {toast.message}
-              </span>
-            </div>
-            <button
-              onClick={() => removeToast(toast.id)}
-              className="ml-3 text-slate-400 hover:text-white transition-colors"
+      <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4 sm:px-0">
+        <AnimatePresence>
+          {toasts.map((toast) => (
+            <motion.div
+              key={toast.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.15 }}
+              className="pointer-events-auto flex items-center justify-between p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-white"
             >
-              ✕
-            </button>
-          </div>
-        ))}
+              <div className="flex items-center gap-3">
+                <Icon
+                  icon={getIcon(toast.type)}
+                  size={18}
+                  className={
+                    toast.type === "success"
+                      ? "text-emerald-400"
+                      : toast.type === "error"
+                      ? "text-red-400"
+                      : toast.type === "warning"
+                      ? "text-amber-400"
+                      : "text-zinc-400"
+                  }
+                />
+                <span className="text-xs font-semibold text-zinc-100 leading-snug">
+                  {toast.message}
+                </span>
+              </div>
+              <button
+                onClick={() => removeToast(toast.id)}
+                className="ml-3 text-zinc-500 hover:text-white transition-colors"
+                aria-label="Close notification"
+              >
+                <Icon icon={Cancel01Icon} size={14} />
+              </button>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );

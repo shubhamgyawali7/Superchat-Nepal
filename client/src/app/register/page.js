@@ -1,7 +1,10 @@
 "use client";
+
 import React, { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import Icon from "@/components/common/Icon";
+import { Alert01Icon, CheckmarkCircle01Icon } from "@hugeicons/core-free-icons";
 
 export default function RegisterPage() {
   const { register, error: authError } = useAuth();
@@ -48,82 +51,64 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070a13] text-white flex items-center justify-center px-4 py-12 relative overflow-hidden selection:bg-orange-500/30">
-      {/* Background Ambience */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-orange-600/15 blur-[140px]" />
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-emerald-600/15 blur-[140px]" />
-      </div>
-
-      <div className="relative z-10 w-full max-w-md">
+    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-12 relative selection:bg-violet-900">
+      <div className="w-full max-w-md">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 mb-8 justify-center group">
+        <Link href="/" className="flex items-center gap-3 mb-8 justify-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo.png"
             alt="Superchat Nepal"
-            className="w-10 h-10 rounded-xl object-contain shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-all"
+            className="w-10 h-10 rounded-lg object-contain bg-violet-600"
           />
           <span className="text-xl font-heading font-black tracking-tight uppercase">
-            Superchat <span className="text-orange-500">Nepal</span>
+            Superchat <span className="text-violet-400">Nepal</span>
           </span>
         </Link>
 
         {/* Card */}
-        <div className="bg-[#0c1220]/90 backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-8 sm:p-10 shadow-2xl">
+        <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-8 sm:p-10">
           <div className="mb-8 text-center sm:text-left">
             <h2 className="text-2xl sm:text-3xl font-heading font-black uppercase tracking-tight text-white mb-2">
               Join as a Streamer
             </h2>
-            <p className="text-sm text-slate-400 font-medium">
+            <p className="text-sm text-zinc-400 font-medium">
               Start accepting eSewa &amp; Khalti donations with live OBS alerts.
             </p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/25 rounded-2xl text-xs font-bold text-red-400 flex items-center gap-2">
-              <span>⚠️</span>
+            <div className="mb-6 p-4 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-bold text-red-400 flex items-center gap-2">
+              <Icon icon={Alert01Icon} size={16} />
               <span>{error}</span>
             </div>
           )}
 
           {success && (
-            <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/25 rounded-2xl text-xs font-bold text-emerald-400 flex items-center gap-2">
-              <span>✅</span>
+            <div className="mb-6 p-4 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-bold text-emerald-400 flex items-center gap-2">
+              <Icon icon={CheckmarkCircle01Icon} size={16} />
               <span>{success}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-1.5">
+              <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-1.5">
                 Streamer Username
               </label>
-              <div className="relative">
-                <span className="absolute left-4 top-3.5 text-xs text-slate-500 font-mono">@</span>
-                <input
-                  type="text"
-                  name="username"
-                  autoComplete="username"
-                  required
-                  className="w-full bg-black/40 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
-                  placeholder="yourstreamname"
-                  value={formData.username}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      username: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""),
-                    })
-                  }
-                />
-              </div>
-              <p className="text-[10px] text-slate-500 mt-1">
-                Your donation link: superchatnepal.com/donate/{formData.username || "username"}
-              </p>
+              <input
+                type="text"
+                name="username"
+                required
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors"
+                placeholder="e.g. gamer_nepal"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              />
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-1.5">
+              <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-1.5">
                 Email Address
               </label>
               <input
@@ -131,7 +116,7 @@ export default function RegisterPage() {
                 name="email"
                 autoComplete="email"
                 required
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors"
                 placeholder="streamer@example.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -139,7 +124,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-1.5">
+              <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-1.5">
                 Password
               </label>
               <input
@@ -147,7 +132,7 @@ export default function RegisterPage() {
                 name="password"
                 autoComplete="new-password"
                 required
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors"
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -155,7 +140,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-1.5">
+              <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-1.5">
                 Confirm Password
               </label>
               <input
@@ -163,7 +148,7 @@ export default function RegisterPage() {
                 name="confirmPassword"
                 autoComplete="new-password"
                 required
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors"
                 placeholder="••••••••"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
@@ -173,17 +158,17 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-2 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 hover:from-orange-400 hover:to-amber-400 text-black py-4 rounded-xl text-xs font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+              className="w-full bg-violet-600 hover:bg-violet-700 text-white py-4 rounded-xl text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50 mt-4"
             >
-              {isLoading ? "Creating Account..." : "Create Streamer Account"}
+              {isLoading ? "Creating Account..." : "Register Streamer Account"}
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-white/[0.08] text-center">
-            <p className="text-xs text-slate-400 font-medium">
+          <div className="mt-8 pt-6 border-t border-zinc-800 text-center">
+            <p className="text-xs text-zinc-400">
               Already have an account?{" "}
-              <Link href="/login" className="text-orange-400 hover:text-orange-300 font-bold ml-1">
-                Log In
+              <Link href="/login" className="text-violet-400 font-bold hover:text-violet-300">
+                Sign In
               </Link>
             </p>
           </div>

@@ -25,12 +25,12 @@ export default function DashboardLoading() {
 
       {/* Links Row Skeleton */}
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-slate-900/40 border border-orange-500/10 p-6 rounded-2xl space-y-4">
+        <div className="bg-zinc-950 border border-zinc-800 p-6 rounded-2xl space-y-4">
           <Skeleton className="h-4 w-32" />
           <Skeleton className="h-6 w-full" />
           <Skeleton className="h-10 w-full" />
         </div>
-        <div className="bg-slate-900/40 border border-white/5 p-6 rounded-2xl space-y-4">
+        <div className="bg-zinc-950 border border-zinc-800 p-6 rounded-2xl space-y-4">
           <Skeleton className="h-4 w-32" />
           <Skeleton className="h-6 w-full" />
           <div className="flex gap-2">

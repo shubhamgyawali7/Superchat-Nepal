@@ -1,8 +1,11 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import Icon from "@/components/common/Icon";
+import { Alert01Icon } from "@hugeicons/core-free-icons";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,7 +14,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) router.push("/dashboard");
   }, [user, router]);
 
@@ -38,48 +41,42 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070a13] text-white flex items-center justify-center px-4 py-12 relative overflow-hidden selection:bg-orange-500/30">
-      {/* Background Ambience */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-orange-600/15 blur-[140px]" />
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-indigo-600/15 blur-[140px]" />
-      </div>
-
-      <div className="relative z-10 w-full max-w-md">
+    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-12 relative selection:bg-violet-900">
+      <div className="w-full max-w-md">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 mb-8 justify-center group">
+        <Link href="/" className="flex items-center gap-3 mb-8 justify-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo.png"
             alt="Superchat Nepal"
-            className="w-10 h-10 rounded-xl object-contain shadow-lg shadow-orange-500/25 group-hover:scale-105 transition-all"
+            className="w-10 h-10 rounded-lg object-contain bg-violet-600"
           />
           <span className="text-xl font-heading font-black tracking-tight uppercase">
-            Superchat <span className="text-orange-500">Nepal</span>
+            Superchat <span className="text-violet-400">Nepal</span>
           </span>
         </Link>
 
-        {/* Card */}
-        <div className="bg-[#0c1220]/90 backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-8 sm:p-10 shadow-2xl">
+        {/* Card (No shadows, No gradients) */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-8 sm:p-10">
           <div className="mb-8 text-center sm:text-left">
             <h2 className="text-2xl sm:text-3xl font-heading font-black uppercase tracking-tight text-white mb-2">
               Streamer Sign In
             </h2>
-            <p className="text-sm text-slate-400 font-medium">
+            <p className="text-sm text-zinc-400 font-medium">
               Access your real-time OBS overlays, earnings, and donations.
             </p>
           </div>
 
           {(error || authError) && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/25 rounded-2xl text-xs font-bold text-red-400 flex items-center gap-2">
-              <span>⚠️</span>
+            <div className="mb-6 p-4 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-bold text-red-400 flex items-center gap-2">
+              <Icon icon={Alert01Icon} size={16} />
               <span>{error || authError}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-2">
+              <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">
                 Email Address
               </label>
               <input
@@ -87,7 +84,7 @@ export default function LoginPage() {
                 name="email"
                 autoComplete="email"
                 required
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3.5 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors"
                 placeholder="streamer@example.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -96,7 +93,7 @@ export default function LoginPage() {
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-400">
+                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400">
                   Password
                 </label>
               </div>
@@ -105,7 +102,7 @@ export default function LoginPage() {
                 name="password"
                 autoComplete="current-password"
                 required
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3.5 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors"
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -115,16 +112,16 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-2 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 hover:from-orange-400 hover:to-amber-400 text-black py-4 rounded-xl text-xs font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+              className="w-full bg-violet-600 hover:bg-violet-700 text-white py-4 rounded-xl text-xs font-black uppercase tracking-wider transition-colors disabled:opacity-50 mt-2"
             >
               {isLoading ? "Signing in..." : "Sign In to Stream"}
             </button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-white/[0.08] text-center">
-            <p className="text-xs text-slate-400 font-medium">
+          <div className="mt-8 pt-6 border-t border-zinc-800 text-center">
+            <p className="text-xs text-zinc-400">
               Don&apos;t have a creator account?{" "}
-              <Link href="/register" className="text-orange-400 hover:text-orange-300 font-bold ml-1">
+              <Link href="/register" className="text-violet-400 font-bold hover:text-violet-300">
                 Register Free
               </Link>
             </p>

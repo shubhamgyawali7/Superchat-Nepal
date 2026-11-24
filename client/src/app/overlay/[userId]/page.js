@@ -81,26 +81,14 @@ function playChime() {
   }
 }
 
-// Built-in Celebration Icon that NEVER fails or displays broken content
+// Built-in Celebration Icon that NEVER fails or displays broken content (No emojis, No gradients, No shadows)
 function CelebrationBadge({ themeColor }) {
   return (
-    <div className="relative flex items-center justify-center w-24 h-24 my-2">
-      <div
-        className="absolute inset-0 rounded-full blur-2xl opacity-50 animate-pulse"
-        style={{ backgroundColor: themeColor }}
-      />
-      <div
-        className="relative z-10 w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl backdrop-blur-md border border-white/20 animate-bounce"
-        style={{
-          background: `linear-gradient(135deg, ${themeColor} 0%, #0f172a 100%)`,
-          boxShadow: `0 0 30px ${themeColor}66`,
-          animationDuration: "2s",
-        }}
-      >
-        <span className="text-4xl select-none filter drop-shadow">🎉</span>
-      </div>
-      <div className="absolute -top-1 -right-1 text-lg animate-ping select-none">✨</div>
-      <div className="absolute -bottom-1 -left-1 text-base animate-pulse select-none">💫</div>
+    <div className="flex items-center justify-center w-16 h-16 my-2 rounded-2xl bg-zinc-900 border border-zinc-800 text-violet-400">
+      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+      </svg>
     </div>
   );
 }
@@ -271,29 +259,20 @@ export default function OverlayPage() {
                 src={settings.alertGifUrl}
                 alt="Alert celebration"
                 onError={() => setImgError(true)}
-                className="w-36 h-36 object-contain relative z-10 drop-shadow-2xl animate-bounce"
+                className="w-36 h-36 object-contain relative z-10"
               />
             </div>
           ) : (
             <CelebrationBadge themeColor={settings.themeColor} />
           )}
 
-          {/* Main Card */}
+          {/* Main Card (No gradients, No shadows, No colored borders) */}
           <div
-            className="w-full rounded-3xl p-6 sm:p-7 text-center backdrop-blur-2xl shadow-2xl border transition-all"
-            style={{
-              backgroundColor: settings.alertBgColor,
-              borderColor: borderColor,
-              boxShadow: `0 0 35px ${settings.themeColor}33, 0 20px 45px rgba(0,0,0,0.8)`,
-            }}
+            className="w-full rounded-2xl p-6 sm:p-7 text-center border border-zinc-800 bg-zinc-950 transition-all"
           >
             {/* Header pill */}
             <div
-              className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-3 border border-white/10"
-              style={{
-                backgroundColor: `${settings.themeColor}25`,
-                color: settings.themeColor,
-              }}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-3 border border-zinc-800 bg-zinc-900 text-zinc-300"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -306,8 +285,7 @@ export default function OverlayPage() {
 
             {/* Supporter Name */}
             <h1
-              className="text-3xl sm:text-4xl font-black uppercase tracking-tight truncate drop-shadow-md mb-2"
-              style={{ color: settings.alertTextColor }}
+              className="text-3xl sm:text-4xl font-black uppercase tracking-tight truncate mb-2 text-white"
             >
               {alert.sender}
             </h1>
@@ -315,12 +293,7 @@ export default function OverlayPage() {
             {/* Amount Badge */}
             <div className="flex justify-center mb-4">
               <div
-                className="px-6 py-2 rounded-2xl font-black text-3xl sm:text-4xl shadow-lg border border-emerald-400/30 flex items-center gap-2"
-                style={{
-                  backgroundColor: "rgba(16, 185, 129, 0.15)",
-                  color: settings.alertAmountColor || "#34d399",
-                  textShadow: "0 0 15px rgba(52, 211, 153, 0.4)",
-                }}
+                className="px-6 py-2 rounded-xl font-black text-3xl sm:text-4xl border border-zinc-800 bg-zinc-900 text-emerald-400 flex items-center gap-2"
               >
                 <span>रू</span>
                 <span>{alert.amount}</span>
@@ -330,12 +303,7 @@ export default function OverlayPage() {
             {/* Message Bubble */}
             {alert.message && (
               <div
-                className="px-5 py-3 rounded-2xl border text-base sm:text-lg font-medium leading-relaxed italic"
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.06)",
-                  borderColor: "rgba(255, 255, 255, 0.1)",
-                  color: settings.alertMessageColor || "#f1f5f9",
-                }}
+                className="px-5 py-3 rounded-xl border border-zinc-800 bg-zinc-900 text-base sm:text-lg font-medium leading-relaxed italic text-zinc-200"
               >
                 &ldquo;{alert.message}&rdquo;
               </div>

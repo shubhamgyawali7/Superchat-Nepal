@@ -1,7 +1,10 @@
 "use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { io } from "socket.io-client";
+import Icon from "@/components/common/Icon";
+import { Tv01Icon } from "@hugeicons/core-free-icons";
 
 export default function TopDonationsOverlay() {
   const { userId } = useParams();
@@ -11,7 +14,7 @@ export default function TopDonationsOverlay() {
     fontFamily: "Inter, sans-serif",
     textColor: "#ffffff",
     amountColor: "#34d399",
-    bgColor: "rgba(11, 15, 25, 0.92)",
+    bgColor: "rgba(11, 15, 25, 0.95)",
     borderColor: "",
   });
   const socketRef = useRef(null);
@@ -27,7 +30,7 @@ export default function TopDonationsOverlay() {
             fontFamily: d.alert_font_family || "Inter, sans-serif",
             textColor: d.alert_text_color || "#ffffff",
             amountColor: d.alert_amount_color || "#34d399",
-            bgColor: d.alert_bg_color || "rgba(11, 15, 25, 0.92)",
+            bgColor: d.alert_bg_color || "rgba(11, 15, 25, 0.95)",
             borderColor: d.alert_border_color || "",
           });
         }
@@ -64,7 +67,7 @@ export default function TopDonationsOverlay() {
         fontFamily: d.alert_font_family || "Inter, sans-serif",
         textColor: d.alert_text_color || "#ffffff",
         amountColor: d.alert_amount_color || "#34d399",
-        bgColor: d.alert_bg_color || "rgba(11, 15, 25, 0.92)",
+        bgColor: d.alert_bg_color || "rgba(11, 15, 25, 0.95)",
         borderColor: d.alert_border_color || "",
       });
     });
@@ -96,9 +99,6 @@ export default function TopDonationsOverlay() {
     };
   }, [userId]);
 
-  const accent = settings.themeColor;
-  const border = settings.borderColor || accent;
-
   return (
     <div
       className="w-full min-h-screen bg-transparent overflow-hidden flex flex-col items-center justify-start p-4 select-none"
@@ -108,44 +108,25 @@ export default function TopDonationsOverlay() {
         <div className="w-full max-w-[360px]">
           <div className="flex items-center justify-between mb-4 px-2">
             <div className="flex items-center gap-2">
-              <span className="text-xl">🏆</span>
-              <h2
-                className="text-lg font-black uppercase tracking-wider drop-shadow"
-                style={{ color: accent }}
-              >
+              <Icon icon={Tv01Icon} size={18} className="text-violet-400" />
+              <h2 className="text-base font-black uppercase tracking-wider text-white">
                 Top Supporters
               </h2>
             </div>
-            <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">
               All-Time
             </span>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {topDonations.map((d, index) => {
-              const medalColors = [
-                "from-amber-300 to-yellow-600 text-black", // 1st
-                "from-slate-200 to-slate-400 text-black",  // 2nd
-                "from-amber-600 to-amber-800 text-white",  // 3rd
-              ];
-              const badgeClass =
-                medalColors[index] || "bg-white/10 text-white/80";
-
               return (
                 <div
                   key={d.id || index}
-                  className="relative backdrop-blur-xl rounded-2xl p-3 flex items-center justify-between border shadow-lg transition-all"
-                  style={{
-                    borderColor: index === 0 ? border : "rgba(255, 255, 255, 0.1)",
-                    backgroundColor: settings.bgColor,
-                    borderLeftWidth: 4,
-                    borderLeftColor: border,
-                  }}
+                  className="relative rounded-xl p-3 flex items-center justify-between border border-zinc-800 bg-zinc-950 transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0 pr-3">
-                    <div
-                      className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-xs shrink-0 shadow bg-gradient-to-br ${badgeClass}`}
-                    >
+                    <div className="w-6 h-6 rounded bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-xs shrink-0 text-white">
                       {index + 1}
                     </div>
                     <p
@@ -158,7 +139,7 @@ export default function TopDonationsOverlay() {
 
                   <div className="text-right shrink-0">
                     <p
-                      className="text-base font-black drop-shadow"
+                      className="text-sm font-black"
                       style={{ color: settings.amountColor }}
                     >
                       रू {d.amount}

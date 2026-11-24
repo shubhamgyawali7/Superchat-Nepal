@@ -33,10 +33,9 @@ export default function RecentDonations({
       style={{ fontFamily }}
     >
       <div className="flex items-center gap-2 mb-2 px-1">
-        <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: accent }} />
+        <span className="w-2 h-2 rounded-full bg-zinc-600" />
         <p
-          className="text-[11px] font-black uppercase tracking-[0.2em] drop-shadow"
-          style={{ color: textColor }}
+          className="text-[11px] font-black uppercase tracking-[0.2em] text-white"
         >
           Recent Supporters
         </p>
@@ -46,33 +45,24 @@ export default function RecentDonations({
         {donations.slice(0, count).map((d, i) => (
           <div
             key={d.id || i}
-            className="flex items-center justify-between gap-3 backdrop-blur-xl border border-white/10 px-3.5 py-2.5 rounded-xl shadow-xl animate-slide-in"
-            style={{
-              backgroundColor: bgColor,
-              borderLeftWidth: 4,
-              borderLeftColor: border,
-              animationDelay: `${i * 80}ms`,
-            }}
+            className="flex items-center justify-between gap-3 bg-zinc-950 border border-zinc-800 px-3.5 py-2.5 rounded-xl"
           >
             <div className="flex-1 min-w-0">
               <p
-                className="font-bold text-xs truncate leading-snug"
-                style={{ color: textColor }}
+                className="font-bold text-xs truncate leading-snug text-white"
               >
                 {d.supporter_name}
               </p>
               {d.message && (
                 <p
-                  className="text-[10px] truncate italic"
-                  style={{ color: messageColor }}
+                  className="text-[10px] truncate italic text-zinc-400"
                 >
                   &ldquo;{d.message}&rdquo;
                 </p>
               )}
             </div>
             <span
-              className="text-xs font-black whitespace-nowrap"
-              style={{ color: amountColor }}
+              className="text-xs font-black whitespace-nowrap text-emerald-400"
             >
               रू {d.amount}
             </span>

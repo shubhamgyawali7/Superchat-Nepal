@@ -1,7 +1,14 @@
 "use client";
+
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
+import Icon from "@/components/common/Icon";
+import {
+  CheckmarkCircle01Icon,
+  Wallet01Icon,
+  Radio01Icon,
+} from "@hugeicons/core-free-icons";
 
 export default function DonationForm({ streamer }) {
   const router = useRouter();
@@ -13,7 +20,6 @@ export default function DonationForm({ streamer }) {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const themeColor = streamer.theme_color || "#ff5500";
   const quickAmounts = [50, 100, 250, 500, 1000, 2500];
 
   const validate = () => {
@@ -29,7 +35,7 @@ export default function DonationForm({ streamer }) {
     }
 
     if (!name.trim()) {
-      newErrors.name = "Your streamer/supporter name is required";
+      newErrors.name = "Your supporter name is required";
     } else if (name.length > 50) {
       newErrors.name = "Name must be under 50 characters";
     }
@@ -102,26 +108,24 @@ export default function DonationForm({ streamer }) {
     }
   };
 
-  const displayName = streamer.display_name || streamer.username || "Streamer";
-
   return (
-    <div className="w-full space-y-8">
-      {/* Main Donation Box */}
-      <div className="relative rounded-3xl bg-[#0c1220]/95 backdrop-blur-2xl border border-white/[0.08] p-6 sm:p-10 shadow-2xl">
-        <form onSubmit={handlePayment} className="space-y-7">
+    <div className="w-full space-y-6">
+      {/* Main Donation Box (No gradients, No shadows, No colored borders) */}
+      <div className="rounded-2xl bg-zinc-950 border border-zinc-800 p-6 sm:p-10">
+        <form onSubmit={handlePayment} className="space-y-6">
           {/* Amount Selector */}
           <div>
-            <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-3">
+            <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-3">
               1. Choose Amount (NPR)
             </label>
 
-            <div className="relative rounded-2xl bg-black/40 border border-white/10 p-6 flex flex-col items-center justify-center">
+            <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-6 flex flex-col items-center justify-center">
               <div className="flex items-center justify-center gap-2">
-                <span className="text-3xl font-heading font-black text-slate-500">रू</span>
+                <span className="text-3xl font-heading font-black text-zinc-500">रू</span>
                 <input
                   type="number"
                   value={amount}
-                  className="w-48 bg-transparent text-center text-6xl sm:text-7xl font-heading font-black text-white outline-none placeholder:text-slate-700"
+                  className="w-48 bg-transparent text-center text-5xl sm:text-6xl font-heading font-black text-white outline-none placeholder:text-zinc-700"
                   placeholder="100"
                   min="10"
                   max="100000"
@@ -148,10 +152,10 @@ export default function DonationForm({ streamer }) {
                         setAmount(String(amt));
                         if (errors.amount) setErrors((prev) => ({ ...prev, amount: null }));
                       }}
-                      className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                      className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors ${
                         isSelected
-                          ? "bg-gradient-to-r from-orange-500 to-amber-500 text-black shadow-lg shadow-orange-500/20 scale-105"
-                          : "bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 border border-white/[0.06]"
+                          ? "bg-white text-black"
+                          : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
                       }`}
                     >
                       रू {amt}
@@ -165,17 +169,13 @@ export default function DonationForm({ streamer }) {
           {/* Supporter Name & Message */}
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-2">
+              <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">
                 2. Your Name
               </label>
               <input
                 type="text"
-                placeholder="e.g. Biraj, NepaliGamer_99"
-                className={`w-full bg-black/40 border rounded-xl px-4 py-3.5 text-sm font-bold text-white placeholder-slate-600 outline-none transition-all ${
-                  errors.name
-                    ? "border-red-500/50"
-                    : "border-white/10 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50"
-                }`}
+                placeholder="e.g. Biraj, NepaliGamer"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors"
                 value={name}
                 maxLength={50}
                 onChange={(e) => {
@@ -188,17 +188,17 @@ export default function DonationForm({ streamer }) {
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-xs font-black uppercase tracking-wider text-slate-400">
+                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400">
                   3. Superchat Message
                 </label>
-                <span className="text-[10px] text-slate-500 font-mono">
+                <span className="text-[10px] text-zinc-500 font-mono">
                   {message.length}/300
                 </span>
               </div>
               <textarea
                 placeholder="Write a message to be read aloud via Text-to-Speech on stream..."
                 rows={3}
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3.5 text-sm font-medium text-white placeholder-slate-600 outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-all resize-none"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors resize-none"
                 value={message}
                 maxLength={300}
                 onChange={(e) => {
@@ -211,65 +211,71 @@ export default function DonationForm({ streamer }) {
 
           {/* Gateway Selector */}
           <div>
-            <label className="block text-xs font-black uppercase tracking-wider text-slate-400 mb-3">
+            <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-3">
               4. Select Payment Gateway
             </label>
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() => setPaymentMethod("esewa")}
-                className={`p-4 rounded-2xl border text-left transition-all ${
+                className={`p-4 rounded-xl border text-left transition-colors ${
                   paymentMethod === "esewa"
-                    ? "bg-emerald-500/15 border-emerald-500/50 shadow-lg shadow-emerald-500/10"
-                    : "bg-black/30 border-white/10 hover:border-white/20"
+                    ? "bg-zinc-900 border-zinc-500"
+                    : "bg-zinc-950 border-zinc-800 hover:border-zinc-700"
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-base font-black text-emerald-400">🟢 eSewa</span>
+                  <span className="flex items-center gap-2 text-sm font-bold text-white">
+                    <Icon icon={CheckmarkCircle01Icon} size={16} className="text-emerald-400" />
+                    eSewa
+                  </span>
                   {paymentMethod === "esewa" && (
-                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
                   )}
                 </div>
-                <p className="text-[10px] text-slate-400 font-medium">Instant Verification</p>
+                <p className="text-[10px] text-zinc-400 font-medium">Instant Verification</p>
               </button>
 
               <button
                 type="button"
                 onClick={() => setPaymentMethod("khalti")}
-                className={`p-4 rounded-2xl border text-left transition-all ${
+                className={`p-4 rounded-xl border text-left transition-colors ${
                   paymentMethod === "khalti"
-                    ? "bg-purple-500/15 border-purple-500/50 shadow-lg shadow-purple-500/10"
-                    : "bg-black/30 border-white/10 hover:border-white/20"
+                    ? "bg-zinc-900 border-zinc-500"
+                    : "bg-zinc-950 border-zinc-800 hover:border-zinc-700"
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-base font-black text-purple-400">🟣 Khalti</span>
+                  <span className="flex items-center gap-2 text-sm font-bold text-white">
+                    <Icon icon={Wallet01Icon} size={16} className="text-purple-400" />
+                    Khalti
+                  </span>
                   {paymentMethod === "khalti" && (
-                    <span className="w-2 h-2 rounded-full bg-purple-400" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
                   )}
                 </div>
-                <p className="text-[10px] text-purple-300/80 font-medium">Instant Sandbox / ePayment</p>
+                <p className="text-[10px] text-zinc-400 font-medium">Instant Sandbox / ePayment</p>
               </button>
             </div>
           </div>
 
           {/* Live On-Screen Preview */}
-          <div className="rounded-2xl bg-black/50 border border-white/10 p-4">
+          <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-4">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
+                <Icon icon={Radio01Icon} size={12} className="text-violet-400" />
                 Live On-Stream Preview
               </span>
-              <span className="text-[10px] text-slate-500 font-mono">OBS Alert</span>
+              <span className="text-[10px] text-zinc-500 font-mono">OBS Alert</span>
             </div>
 
-            <div className="rounded-xl bg-[#121929] border border-orange-500/30 p-4 text-center space-y-2 shadow-inner">
+            <div className="rounded-lg bg-zinc-950 border border-zinc-800 p-4 text-center space-y-1.5">
               <p className="text-xs font-black uppercase tracking-tight text-white">
                 {name || "Your Name"}{" "}
-                <span className="text-orange-400 font-black">sent रू {amount || "0"}</span>
+                <span className="text-violet-400 font-black">sent रू {amount || "0"}</span>
               </p>
               {message && (
-                <p className="text-xs text-slate-300 italic max-w-sm mx-auto">
+                <p className="text-xs text-zinc-300 italic max-w-sm mx-auto">
                   &ldquo;{message}&rdquo;
                 </p>
               )}
@@ -280,16 +286,14 @@ export default function DonationForm({ streamer }) {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 hover:from-orange-400 hover:to-amber-400 text-black py-4 rounded-2xl text-base font-black uppercase tracking-wider transition-all shadow-xl shadow-orange-500/25 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+            className="w-full bg-violet-600 hover:bg-violet-700 text-white font-black py-4 rounded-xl text-xs uppercase tracking-wider transition-colors disabled:opacity-50"
           >
-            {isLoading ? "Redirecting to Gateway..." : `Send रू ${amount || "0"} Superchat →`}
+            {isLoading
+              ? "Processing..."
+              : `Send रू ${amount || "0"} Superchat`}
           </button>
         </form>
       </div>
-
-      <p className="text-center text-xs text-slate-500 font-medium">
-        🔒 Encrypted &amp; direct payments to {displayName}. No middleman fees.
-      </p>
     </div>
   );
 }

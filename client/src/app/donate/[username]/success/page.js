@@ -1,6 +1,9 @@
 "use client";
+
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
+import Icon from "@/components/common/Icon";
+import { CheckmarkCircle01Icon, Alert01Icon } from "@hugeicons/core-free-icons";
 
 function DonateSuccessContent() {
   const [status, setStatus] = useState("checking");
@@ -94,20 +97,14 @@ function DonateSuccessContent() {
 
   if (status === "checking") {
     return (
-      <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center p-6 selection:bg-orange-500/30">
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full blur-[180px] opacity-20 bg-orange-500/10 animate-pulse"></div>
-        </div>
-
-        <div className="relative z-10 w-full max-w-lg text-center space-y-12">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-orange-500 blur-3xl opacity-20 scale-150 animate-pulse"></div>
-            <div className="w-20 h-20 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin mx-auto shadow-2xl"></div>
-          </div>
-
-          <div className="space-y-4">
-            <h2 className="text-3xl font-heading font-black tracking-tight uppercase">Verifying Transaction</h2>
-            <p className="text-lg text-text-muted font-medium opacity-70 animate-pulse">
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 selection:bg-violet-900">
+        <div className="w-full max-w-lg text-center space-y-6">
+          <div className="w-12 h-12 border-2 border-zinc-700 border-t-violet-500 rounded-full animate-spin mx-auto" />
+          <div className="space-y-2">
+            <h2 className="text-2xl font-heading font-black tracking-tight uppercase text-white">
+              Verifying Transaction
+            </h2>
+            <p className="text-sm text-zinc-400 font-medium">
               Connecting to payment gateway...
             </p>
           </div>
@@ -118,40 +115,31 @@ function DonateSuccessContent() {
 
   if (status === "failed") {
     return (
-      <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center p-6 selection:bg-red-500/30">
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full blur-[180px] opacity-20 bg-red-500/20"></div>
-        </div>
-
-        <div className="relative z-10 w-full max-w-lg text-center space-y-10">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-red-500 blur-3xl opacity-20 scale-150 animate-pulse"></div>
-            <div className="relative w-24 h-24 bg-red-500/10 border-2 border-red-500/30 rounded-full flex items-center justify-center mx-auto shadow-2xl">
-              <svg className="w-12 h-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </div>
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 selection:bg-zinc-800">
+        <div className="w-full max-w-lg text-center space-y-6">
+          <div className="w-16 h-16 bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center justify-center mx-auto text-red-400">
+            <Icon icon={Alert01Icon} size={32} />
           </div>
 
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-6xl font-heading font-black tracking-tight leading-none uppercase">
-              Payment <span className="text-red-500">Failed</span>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-heading font-black tracking-tight uppercase text-white">
+              Payment <span className="text-red-400">Failed</span>
             </h1>
-            <p className="text-lg text-text-muted font-medium opacity-70">
+            <p className="text-sm text-zinc-400 font-medium max-w-md mx-auto">
               {errorMsg || "We couldn't verify your transaction with the payment gateway."}
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
             <button
               onClick={() => router.back()}
-              className="bg-red-500 text-white px-10 py-5 rounded-2xl text-base font-black uppercase tracking-widest hover:bg-red-600 transition-all hover:scale-105 shadow-xl shadow-red-500/10"
+              className="bg-red-500 hover:bg-red-600 text-white px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider transition-colors"
             >
               Try Again
             </button>
             <button
               onClick={() => router.push(`/donate/${username}`)}
-              className="bg-white/5 border border-white/10 text-white px-10 py-5 rounded-2xl text-base font-black uppercase tracking-widest hover:bg-white/10 transition-all"
+              className="bg-zinc-900 border border-zinc-800 text-white px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-zinc-800 transition-colors"
             >
               Cancel
             </button>
@@ -162,60 +150,51 @@ function DonateSuccessContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center p-6 selection:bg-orange-500/30">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full blur-[180px] opacity-20 animate-pulse bg-emerald-500/30"></div>
-      </div>
-
-      <div className="relative z-10 w-full max-w-lg text-center space-y-10">
-        <div className="relative inline-block">
-          <div className="absolute inset-0 bg-emerald-500 blur-3xl opacity-20 scale-150 animate-pulse"></div>
-          <div className="relative w-24 h-24 bg-emerald-500/10 border-2 border-emerald-500/30 rounded-full flex items-center justify-center mx-auto shadow-2xl">
-            <svg className="w-12 h-12 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
+    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 selection:bg-zinc-800">
+      <div className="w-full max-w-lg text-center space-y-8">
+        <div className="w-16 h-16 bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center justify-center mx-auto text-emerald-400">
+          <Icon icon={CheckmarkCircle01Icon} size={32} />
         </div>
 
-        <div className="space-y-4">
-          <h1 className="text-5xl md:text-6xl font-heading font-black tracking-tight leading-none uppercase">
-            Donation <span className="text-emerald-500">Successful!</span>
+        <div className="space-y-2">
+          <h1 className="text-3xl sm:text-4xl font-heading font-black tracking-tight uppercase text-white">
+            Donation <span className="text-emerald-400">Successful</span>
           </h1>
-          <p className="text-lg text-text-muted font-medium opacity-70">
+          <p className="text-sm text-zinc-400 font-medium max-w-md mx-auto">
             Your support has been sent and will appear on stream instantly.
           </p>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-3xl border border-white/10 p-8 rounded-[2.5rem] shadow-2xl">
-          <div className="space-y-6">
-            <div className="flex justify-between items-center pb-4 border-b border-white/5">
-              <span className="text-xs font-black uppercase tracking-widest text-text-muted opacity-50">Supporter</span>
-              <span className="text-base font-bold">{donateData?.name || "Supporter"}</span>
+        <div className="bg-zinc-950 border border-zinc-800 p-6 rounded-2xl">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center pb-3 border-b border-zinc-800">
+              <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Supporter</span>
+              <span className="text-sm font-bold text-white">{donateData?.name || "Supporter"}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs font-black uppercase tracking-widest text-text-muted opacity-50">Amount Sent</span>
-              <span className="text-2xl font-black text-emerald-500">रू {donateData?.amount || "0"}</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Amount Sent</span>
+              <span className="text-2xl font-black text-emerald-400">रू {donateData?.amount || "0"}</span>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
             onClick={() => router.push(`/donate/${username}`)}
-            className="bg-white text-black px-10 py-5 rounded-2xl text-base font-black uppercase tracking-widest hover:bg-white/90 transition-all hover:scale-105 shadow-xl shadow-white/5"
+            className="bg-white hover:bg-zinc-200 text-black px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider transition-colors"
           >
             Support More
           </button>
           <button
-            onClick={() => router.push('/')}
-            className="bg-white/5 border border-white/10 text-white px-10 py-5 rounded-2xl text-base font-black uppercase tracking-widest hover:bg-white/10 transition-all"
+            onClick={() => router.push("/")}
+            className="bg-zinc-900 border border-zinc-800 text-white px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-zinc-800 transition-colors"
           >
             Go Home
           </button>
         </div>
 
-        <p className="text-[11px] font-black text-text-muted/30 uppercase tracking-[0.4em] pt-8">
-          Transaction Reference: {transactionRef}
+        <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest pt-4">
+          Ref: {transactionRef}
         </p>
       </div>
     </div>
@@ -224,11 +203,13 @@ function DonateSuccessContent() {
 
 export default function DonateSuccessPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[#020617] text-white flex flex-col items-center justify-center p-6">
-        <div className="w-20 h-20 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin mx-auto shadow-2xl"></div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">
+          <div className="w-12 h-12 border-2 border-zinc-700 border-t-violet-500 rounded-full animate-spin mx-auto" />
+        </div>
+      }
+    >
       <DonateSuccessContent />
     </Suspense>
   );
