@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/useToast";
 import { QRCodeCanvas } from "qrcode.react";
 import Icon from "@/components/common/Icon";
@@ -12,6 +12,8 @@ import {
   Tv01Icon,
   CheckmarkCircle01Icon,
   Wallet01Icon,
+  Cancel01Icon,
+  Download01Icon,
 } from "@hugeicons/core-free-icons";
 
 export default function DashboardClient({
@@ -25,11 +27,26 @@ export default function DashboardClient({
 }) {
   const { addToast } = useToast();
   const [isTesting, setIsTesting] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   const qrRef = useRef(null);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setShowQRModal(false);
+    };
+    if (showQRModal) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showQRModal]);
+
   const downloadQR = () => {
-    const canvas = qrRef.current.querySelector("canvas");
+    const canvas = qrRef.current?.querySelector("canvas");
+    if (!canvas) {
+      addToast("Failed to generate QR code", "error");
+      return;
+    }
     const url = canvas.toDataURL("image/png");
     const link = document.createElement("a");
     link.href = url;
@@ -291,7 +308,7 @@ export default function DashboardClient({
               Copy Link
             </button>
             <button
-              onClick={downloadQR}
+              onClick={() => setShowQRModal(true)}
               className="flex items-center justify-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-violet-400 hover:text-violet-300 font-bold py-3 rounded-lg uppercase tracking-wider transition-colors"
             >
               <Icon icon={QrCodeIcon} size={14} />
@@ -300,7 +317,18 @@ export default function DashboardClient({
           </div>
 
           <div ref={qrRef} className="hidden">
-            <QRCodeCanvas value={donationUrl} size={512} level={"H"} includeMargin={true} />
+            <QRCodeCanvas
+              value={donationUrl}
+              size={512}
+              level={"H"}
+              includeMargin={true}
+              imageSettings={{
+                src: "/logo.png",
+                height: 110,
+                width: 110,
+                excavate: true,
+              }}
+            />
           </div>
         </div>
       </div>
@@ -358,6 +386,71 @@ export default function DashboardClient({
           </table>
         </div>
       </div>
+
+      {/* QR Code Modal */}
+      {showQRModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setShowQRModal(false)}
+        >
+          <div
+            className="bg-zinc-950 border border-zinc-800 rounded-3xl max-w-sm w-full p-6 relative shadow-2xl flex flex-col items-center text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowQRModal(false)}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-2 rounded-xl bg-zinc-900 border border-zinc-800 transition-colors"
+              aria-label="Close"
+            >
+              <Icon icon={Cancel01Icon} size={16} />
+            </button>
+
+            <div className="w-12 h-12 rounded-2xl bg-violet-600/10 border border-violet-500/20 flex items-center justify-center mb-4 text-violet-400">
+              <Icon icon={QrCodeIcon} size={24} />
+            </div>
+
+            <h3 className="text-xl font-heading font-black uppercase tracking-tight text-white mb-1">
+              Donation QR Code
+            </h3>
+            <p className="text-xs text-zinc-400 mb-6">
+              Scan with any camera or payment app to open <span className="text-violet-400 font-bold">@{user.username}</span>&apos;s donation page.
+            </p>
+
+            {/* QR Code Canvas with Centered Application Logo */}
+            <div className="bg-white p-4 rounded-2xl shadow-inner mb-6 flex items-center justify-center">
+              <QRCodeCanvas
+                value={donationUrl}
+                size={240}
+                level={"H"}
+                includeMargin={true}
+                imageSettings={{
+                  src: "/logo.png",
+                  height: 52,
+                  width: 52,
+                  excavate: true,
+                }}
+              />
+            </div>
+
+            <div className="w-full space-y-2">
+              <button
+                onClick={downloadQR}
+                className="w-full flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-black py-3 rounded-xl uppercase tracking-wider transition-colors shadow-lg shadow-violet-600/20"
+              >
+                <Icon icon={Download01Icon} size={16} />
+                <span>Download High-Res QR</span>
+              </button>
+              <button
+                onClick={copyDonationPath}
+                className="w-full flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-bold py-3 rounded-xl uppercase tracking-wider transition-colors"
+              >
+                <Icon icon={Copy01Icon} size={14} />
+                <span>Copy Donation URL</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
