@@ -1,547 +1,165 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "motion/react";
-import { QRCodeCanvas } from "qrcode.react";
 import Icon from "@/components/common/Icon";
 import {
   Menu01Icon,
   Cancel01Icon,
   ArrowRight01Icon,
-  Radio01Icon,
-  Tv01Icon,
-  Wallet01Icon,
   CheckmarkCircle01Icon,
-  VolumeHighIcon,
   Mic01Icon,
-  QrCodeIcon,
-  SparklesIcon,
+  Tv01Icon,
+  VolumeHighIcon,
 } from "@hugeicons/core-free-icons";
+
+const navigation = [
+  ["Features", "#features"],
+  ["How it works", "#how-it-works"],
+];
 
 export default function VideoHero({ user = null }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(0); // 0: OBS Alert, 1: Dashboard & QR, 2: Donation Page
-
-  // Always auto-advance clip in an infinite continuous loop every 4.5 seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveTab((prev) => (prev + 1) % 3);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, []);
 
   return (
-    <section className="relative w-full min-h-screen bg-black text-white flex flex-col justify-between overflow-hidden">
-      {/* Subtle Background Glow & Pattern */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-violet-600/10 blur-[130px] rounded-full" />
-        <div className="absolute bottom-10 left-1/3 w-[500px] h-[300px] bg-emerald-500/5 blur-[120px] rounded-full" />
-        <div className="absolute inset-0 bg-[radial-gradient(#27272a_1px,transparent_1px)] [background-size:24px_24px] opacity-25" />
-      </div>
-
-      {/* Top Overlay: Navigation Bar */}
-      <nav
-        aria-label="Main Navigation"
-        className="relative z-30 w-full border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md"
-      >
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
-          {/* Logo & Brand Name */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center transition-transform group-hover:scale-105">
-              <Image
-                src="/logo.png"
-                alt="Superchat Nepal"
-                width={36}
-                height={36}
-                className="w-full h-full object-contain"
-                priority
-              />
-            </div>
-            <span className="text-base sm:text-lg font-heading font-black tracking-tight uppercase text-white">
-              Superchat <span className="text-violet-400">Nepal</span>
+    <>
+      <header className="sticky top-0 z-50 border-b border-[#E9E4DB] bg-[#FAF7F1]/90 backdrop-blur-lg">
+        <div className="mx-auto grid h-[68px] w-full max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center px-5 sm:px-8 lg:px-12">
+          <Link href="/" className="flex w-fit items-center gap-2.5" aria-label="Superchat Nepal home">
+            <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white">
+              <Image src="/logo.png" alt="" width={36} height={36} className="h-full w-full object-contain" priority />
             </span>
+            <span className="font-heading text-sm font-bold tracking-tight text-[#1D1D20] sm:text-base">Superchat <span className="text-[#E8470A]">Nepal</span></span>
           </Link>
 
-          {/* Desktop Navigation Links (14px UI Text) */}
-          <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-wider text-zinc-400">
-            <Link href="#features" className="hover:text-white transition-colors">
-              Features
-            </Link>
-            <Link href="#gateways" className="hover:text-white transition-colors">
-              eSewa &amp; Khalti
-            </Link>
-            <Link href="#overlay" className="hover:text-white transition-colors">
-              OBS Overlay
-            </Link>
-            <Link href="#faq" className="hover:text-white transition-colors">
-              FAQ
+          <nav aria-label="Main navigation" className="hidden items-center gap-8 text-sm font-medium text-[#5F5B55] md:flex">
+            {navigation.map(([label, href]) => (
+              <Link key={href} href={href} className="transition-colors hover:text-[#E8470A]">{label}</Link>
+            ))}
+          </nav>
+
+          <div className="hidden items-center justify-self-end gap-3 md:flex">
+            {!user && <Link href="/login" className="px-3 py-2 text-sm font-medium text-[#514D47] transition-colors hover:text-[#E8470A]">Log in</Link>}
+            <Link href={user ? "/dashboard" : "/register"} className="rounded-lg bg-[#FF4D0A] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#E74408]">
+              {user ? "Dashboard" : "Get started"}
             </Link>
           </div>
 
-          {/* Desktop Action Buttons (14px UI Text) */}
-          <div className="hidden md:flex items-center gap-3">
-            {user ? (
-              <Link
-                href="/dashboard"
-                className="bg-violet-600 hover:bg-violet-700 text-white px-5 py-2.5 rounded-xl font-black uppercase tracking-wider text-sm transition-colors shadow-lg shadow-violet-600/20"
-              >
-                Go to Dashboard
-              </Link>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="text-sm font-bold uppercase tracking-wider text-zinc-300 hover:text-white px-4 py-2 transition-colors"
-                >
-                  Log In
-                </Link>
-                <Link
-                  href="/register"
-                  className="bg-violet-600 hover:bg-violet-700 text-white px-5 py-2.5 rounded-xl font-black uppercase tracking-wider text-sm transition-colors shadow-lg shadow-violet-600/20"
-                >
-                  Start Streaming Free
-                </Link>
-              </>
-            )}
-          </div>
-
-          {/* Mobile Hamburger Button */}
           <button
             type="button"
-            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            onClick={() => setMobileMenuOpen((open) => !open)}
             aria-expanded={mobileMenuOpen}
-            aria-label="Toggle navigation menu"
-            className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-white transition-colors"
+            aria-controls="mobile-navigation"
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            className="col-start-3 flex h-10 w-10 items-center justify-self-end rounded-lg border border-[#E9E4DB] bg-white text-[#1D1D20] md:hidden"
           >
-            <Icon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={20} />
+            <Icon icon={mobileMenuOpen ? Cancel01Icon : Menu01Icon} size={19} />
           </button>
         </div>
 
-        {/* Mobile Collapsible Menu Drawer */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="md:hidden overflow-hidden px-5 pt-3 pb-6 border-t border-zinc-800 bg-zinc-950 space-y-4"
-            >
-              <div className="flex flex-col space-y-3 text-sm font-bold uppercase tracking-wider text-zinc-300">
-                <Link
-                  href="#features"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-2 hover:text-white transition-colors"
-                >
-                  Features
-                </Link>
-                <Link
-                  href="#gateways"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-2 hover:text-white transition-colors"
-                >
-                  eSewa &amp; Khalti
-                </Link>
-                <Link
-                  href="#overlay"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-2 hover:text-white transition-colors"
-                >
-                  OBS Overlay
-                </Link>
-                <Link
-                  href="#faq"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-2 hover:text-white transition-colors"
-                >
-                  FAQ
-                </Link>
+        {mobileMenuOpen && (
+          <nav id="mobile-navigation" aria-label="Mobile navigation" className="border-t border-[#E9E4DB] bg-[#FAF7F1] px-5 py-3 text-sm text-[#514D47] md:hidden">
+            <div className="mx-auto flex max-w-[1440px] flex-col gap-1">
+              {navigation.map(([label, href]) => (
+                <Link key={href} href={href} onClick={() => setMobileMenuOpen(false)} className="rounded-lg px-3 py-2.5 font-medium hover:bg-[#FFF0DF] hover:text-[#E8470A]">{label}</Link>
+              ))}
+              <div className="mt-2 grid grid-cols-2 gap-2 border-t border-[#E9E4DB] pt-3">
+                {!user && <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="rounded-lg border border-[#E9E4DB] bg-white px-3 py-2.5 text-center font-semibold">Log in</Link>}
+                <Link href={user ? "/dashboard" : "/register"} onClick={() => setMobileMenuOpen(false)} className="rounded-lg bg-[#FF4D0A] px-3 py-2.5 text-center font-semibold text-white">{user ? "Dashboard" : "Get started"}</Link>
               </div>
+            </div>
+          </nav>
+        )}
+      </header>
 
-              <div className="pt-3 border-t border-zinc-800 flex flex-col gap-2">
-                {user ? (
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="w-full text-center bg-violet-600 text-white py-3 rounded-xl font-black uppercase tracking-wider text-sm transition-colors"
-                  >
-                    Go to Dashboard
-                  </Link>
-                ) : (
-                  <>
-                    <Link
-                      href="/login"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="w-full text-center border border-zinc-800 bg-zinc-900 py-3 rounded-xl font-bold uppercase tracking-wider text-sm text-white transition-colors"
-                    >
-                      Log In
-                    </Link>
-                    <Link
-                      href="/register"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="w-full text-center bg-violet-600 text-white py-3 rounded-xl font-black uppercase tracking-wider text-sm transition-colors"
-                    >
-                      Start Streaming Free
-                    </Link>
-                  </>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
-
-      {/* Main Hero Body */}
-      <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 py-10 md:py-16 w-full flex flex-col items-center">
-        {/* Top Header & Value Proposition */}
-        <div className="text-center max-w-3xl mx-auto space-y-5 mb-10 md:mb-12">
-          {/* Live Badge (12px caption) */}
-          <div className="inline-flex items-center gap-2 border border-zinc-800 bg-zinc-900/90 px-4 py-1.5 rounded-full text-zinc-300 backdrop-blur-sm">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
-            </span>
-            <span className="text-xs font-bold uppercase tracking-wider">
-              Live Monetization for Nepali Streamers
-            </span>
+      <section className="bg-[#FAF7F1] px-5 pb-14 pt-10 sm:px-8 sm:pb-16 sm:pt-14 lg:px-12 lg:pb-20 lg:pt-16">
+        <div className="mx-auto grid w-full max-w-[1440px] items-center gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14 xl:gap-20">
+          <div className="mx-auto max-w-xl text-center lg:mx-0 lg:text-left">
+            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#F4D6BC] bg-[#FFF0DF] px-3.5 py-1.5 text-xs font-semibold text-[#A83A12]">
+              <NepalFlag />
+              Made for Nepali creators
+            </p>
+            <h1 className="font-heading text-[2.125rem] font-bold leading-[1.12] tracking-[-0.04em] text-[#1D1D20] sm:text-[2.5rem] lg:text-[3rem] xl:text-[3.5rem]">
+              Bring your community into the stream.
+            </h1>
+            <p className="mx-auto mt-5 max-w-lg text-[15px] leading-7 text-[#77736C] sm:text-base lg:mx-0">
+              A simple way for viewers in Nepal to support you with eSewa or Khalti and celebrate together on screen.
+            </p>
+            <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
+              <Link href={user ? "/dashboard" : "/register"} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#FF4D0A] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#E74408]">
+                {user ? "Open dashboard" : "Get started"} <Icon icon={ArrowRight01Icon} size={16} />
+              </Link>
+              <Link href="#how-it-works" className="inline-flex items-center justify-center rounded-lg border border-[#DCD6CC] bg-white px-5 py-3 text-sm font-semibold text-[#1D1D20] transition-colors hover:border-[#E6A47C] hover:bg-[#FFF9F3]">
+                See how it works
+              </Link>
+            </div>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium text-[#77736C] lg:justify-start">
+              <span>0% monthly platform fee</span><span aria-hidden="true" className="text-[#C7BFB3]">•</span>
+              <span>NPR donations</span><span aria-hidden="true" className="text-[#C7BFB3]">•</span><span>OBS ready</span>
+            </div>
           </div>
 
-          {/* Heading H1 (35px-50px desktop; 28px-40px mobile) */}
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-heading font-black tracking-tight uppercase leading-[1.08] text-white">
-            Turn Live Streams into <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-indigo-300 to-emerald-400">
-              Instant Income.
-            </span>
-          </h1>
+          <StreamProductPreview />
+        </div>
+      </section>
+    </>
+  );
+}
 
-          {/* Body Paragraph (16px-18px) */}
-          <p className="text-base sm:text-lg text-zinc-300 font-medium leading-relaxed max-w-2xl mx-auto">
-            Accept superchats directly via <strong className="text-white">eSewa</strong> &amp;{" "}
-            <strong className="text-white">Khalti</strong>. Get zero-latency OBS audio alerts, on-screen donor cards,
-            and automated Nepali Text-to-Speech without overseas fees.
-          </p>
-
-          {/* CTA Buttons (14px-16px) */}
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-            <Link
-              href={user ? "/dashboard" : "/register"}
-              className="inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-7 py-4 rounded-xl text-sm sm:text-base font-black uppercase tracking-wider text-center transition-all shadow-lg shadow-violet-600/25 hover:shadow-violet-600/40"
-            >
-              <span>{user ? "Go to Dashboard" : "Start Streaming Free"}</span>
-              <Icon icon={ArrowRight01Icon} size={18} />
-            </Link>
-
-            <Link
-              href="#overlay"
-              className="inline-flex items-center justify-center gap-2 border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white px-6 py-4 rounded-xl text-sm sm:text-base font-bold uppercase tracking-wider text-center transition-colors"
-            >
-              <span>Explore Features</span>
-            </Link>
+function StreamProductPreview() {
+  return (
+    <div className="product-preview mx-auto w-full max-w-2xl rounded-2xl border border-[#E9E4DB] bg-white p-3 shadow-[0_18px_55px_rgba(50,40,20,0.10)] sm:p-4">
+      <div className="flex items-center justify-between gap-3 px-2 pb-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#FFF0DF] text-[#E8470A]"><Icon icon={Tv01Icon} size={17} /></span>
+          <div className="min-w-0">
+            <p className="truncate text-xs font-bold text-[#1D1D20] sm:text-sm">OBS browser source</p>
+            <p className="text-[11px] text-[#77736C]">superchatnepal.com/overlay</p>
           </div>
+        </div>
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#EAF5ED] px-2.5 py-1 text-[11px] font-semibold text-[#277443]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#36A263]" /> Connected
+        </span>
+      </div>
 
-          {/* Feature Highlights Pills (12px Caption) */}
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-4 text-xs text-zinc-400 font-mono">
-            <span className="flex items-center gap-1.5">
-              <Icon icon={CheckmarkCircle01Icon} size={15} className="text-emerald-400" />
-              &lt; 100ms OBS Latency
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1.5">
-              <Icon icon={CheckmarkCircle01Icon} size={15} className="text-violet-400" />
-              eSewa &amp; Khalti Native
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1.5">
-              <Icon icon={CheckmarkCircle01Icon} size={15} className="text-indigo-400" />
-              Audio Chimes + TTS
-            </span>
+      <div className="relative overflow-hidden rounded-xl bg-[#1D1D20] p-4 text-white sm:p-6">
+        <div className="mb-5 flex items-center justify-between gap-3 text-[11px] font-medium text-white/70 sm:text-xs">
+          <span className="inline-flex items-center gap-2"><span className="rounded bg-[#D83232] px-2 py-0.5 text-[10px] font-bold tracking-wide text-white">LIVE</span> Stream preview</span>
+          <span className="hidden sm:inline">Donation alert / preview</span>
+        </div>
+
+        <div className="relative flex min-h-[236px] items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-[#28282D] p-4 sm:min-h-[286px] sm:p-7">
+          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-16 border-t border-white/5 bg-[#222227]" />
+          <div aria-hidden="true" className="absolute bottom-16 left-[8%] h-20 w-[14%] rounded-t bg-[#34343A]" />
+          <div aria-hidden="true" className="absolute bottom-16 right-[10%] h-28 w-[18%] rounded-t bg-[#323238]" />
+          <div className="relative z-10 w-full max-w-sm rounded-xl border border-white/10 bg-[#111113]/95 p-4 text-center shadow-2xl sm:p-5">
+            <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-[#FF4D0A] font-heading text-sm font-extrabold text-white">N</div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/55">Superchat received</p>
+            <p className="mt-1 font-heading text-lg font-bold text-white sm:text-xl">Aayush Sharma</p>
+            <p className="mt-1 font-heading text-2xl font-extrabold text-[#FF8A50] sm:text-3xl">NPR 500</p>
+            <p className="mt-3 rounded-lg bg-white/[0.06] px-3 py-2 text-xs leading-5 text-white/80 sm:text-sm">“GG! That clutch was unreal. Keep going!”</p>
+            <div className="mt-3 flex flex-wrap justify-center gap-2">
+              <span className="rounded-md bg-[#FFF0DF] px-2.5 py-1 text-[10px] font-bold text-[#A83A12]">eSewa</span>
+              <span className="rounded-md bg-[#FFF0DF] px-2.5 py-1 text-[10px] font-bold text-[#A83A12]">Khalti</span>
+            </div>
           </div>
         </div>
 
-        {/* 🎬 The Platform Clip Preview Showcase */}
-        <div className="w-full max-w-4xl mx-auto">
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/95 shadow-2xl overflow-hidden backdrop-blur-xl">
-            {/* Window Topbar */}
-            <div className="px-5 py-3.5 border-b border-zinc-800/80 bg-zinc-900/60 flex items-center justify-between">
-              {/* Window Controls & Address */}
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block" />
-                  <span className="w-3 h-3 rounded-full bg-yellow-500/80 inline-block" />
-                  <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
-                </div>
-                <span className="text-xs font-mono text-zinc-400 font-bold ml-2">
-                  superchat-nepal://stream-preview
-                </span>
-              </div>
-
-              {/* Always Looping Live Indicator */}
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                </span>
-                <span className="text-xs font-mono uppercase tracking-wider text-emerald-400 font-bold">
-                  Live Stream Clip
-                </span>
-              </div>
-            </div>
-
-            {/* Display Stage with Animated Content */}
-            <div className="p-6 sm:p-8 min-h-[360px] sm:min-h-[400px] flex items-center justify-center bg-gradient-to-b from-zinc-950 via-zinc-950 to-black">
-              <AnimatePresence mode="wait">
-                {/* 1. LIVE OBS ALERT CLIP */}
-                {activeTab === 0 && (
-                  <motion.div
-                    key="obs-alert"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -15 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-full max-w-lg mx-auto text-center space-y-4"
-                  >
-                    <div className="inline-flex items-center gap-2 bg-violet-600/10 border border-violet-500/20 px-3 py-1 rounded-full text-violet-400 text-xs font-bold uppercase tracking-wider">
-                      <Icon icon={Radio01Icon} size={14} className="text-emerald-400 animate-pulse" />
-                      <span>OBS Studio Broadcast View (WebSocket Live)</span>
-                    </div>
-
-                    {/* OBS Screen Alert Box Simulation */}
-                    <div className="p-6 sm:p-7 rounded-2xl bg-zinc-900/90 border border-violet-500/30 shadow-2xl relative overflow-hidden text-center space-y-4">
-                      {/* Audio Soundwaves Animation */}
-                      <div className="flex items-center justify-center gap-1 h-6">
-                        {[40, 75, 100, 60, 90, 45, 80, 50, 95, 30].map((h, i) => (
-                          <span
-                            key={i}
-                            className="w-1 bg-violet-400 rounded-full animate-pulse"
-                            style={{
-                              height: `${h}%`,
-                              animationDelay: `${i * 0.1}s`,
-                              animationDuration: "0.8s",
-                            }}
-                          />
-                        ))}
-                      </div>
-
-                      <div>
-                        <span className="text-xs font-black uppercase tracking-widest text-zinc-400 bg-zinc-950 px-3 py-1 rounded-md border border-zinc-800">
-                          eSewa Superchat Alert
-                        </span>
-                        <h3 className="text-2xl sm:text-3xl font-heading font-black uppercase tracking-tight text-white mt-3">
-                          Aayush Sharma
-                        </h3>
-                      </div>
-
-                      <div className="inline-block bg-zinc-950 border border-emerald-500/30 px-6 py-2 rounded-xl text-emerald-400 font-heading font-black text-3xl shadow-inner">
-                        रू 500
-                      </div>
-
-                      <div className="bg-zinc-950/80 border border-zinc-800 p-4 rounded-xl text-sm text-zinc-200 italic font-medium leading-relaxed max-w-md mx-auto">
-                        &ldquo;Brother insane 1v4 clutch in Pochinki! Aaja chicken dinner pakka ho! Keep streaming 🔥&rdquo;
-                      </div>
-
-                      <div className="flex items-center justify-center gap-4 text-xs text-zinc-400 font-mono pt-1">
-                        <span className="flex items-center gap-1.5 text-zinc-300">
-                          <Icon icon={VolumeHighIcon} size={15} className="text-violet-400" />
-                          Ding Dong Chime
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1.5 text-zinc-300">
-                          <Icon icon={Mic01Icon} size={15} className="text-emerald-400" />
-                          Nepali Text-to-Speech
-                        </span>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* 2. STREAMER DASHBOARD & QR CLIP */}
-                {activeTab === 1 && (
-                  <motion.div
-                    key="dashboard-qr"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -15 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-full max-w-2xl mx-auto space-y-4"
-                  >
-                    <div className="flex items-center justify-between text-xs sm:text-sm">
-                      <span className="text-zinc-400 font-bold uppercase tracking-wider">
-                        Streamer Portal: <span className="text-violet-400 font-mono">@nodex-gaming</span>
-                      </span>
-                      <span className="text-xs text-emerald-400 font-mono bg-emerald-950/40 border border-emerald-800/40 px-2.5 py-0.5 rounded font-bold">
-                        ● All Gateways Online
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
-                        <p className="text-xs text-zinc-400 uppercase tracking-widest font-black">Total Earnings</p>
-                        <p className="text-2xl font-heading font-black text-violet-400 mt-1">रू 54,250</p>
-                        <p className="text-xs text-zinc-500 mt-1">42 donors this week</p>
-                      </div>
-
-                      <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
-                        <p className="text-xs text-zinc-400 uppercase tracking-widest font-black">Gateways</p>
-                        <div className="mt-2 space-y-1">
-                          <span className="text-xs text-emerald-400 font-bold flex items-center gap-1">
-                            <Icon icon={CheckmarkCircle01Icon} size={14} /> eSewa (Active)
-                          </span>
-                          <span className="text-xs text-purple-400 font-bold flex items-center gap-1">
-                            <Icon icon={CheckmarkCircle01Icon} size={14} /> Khalti (Active)
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Centered Logo QR Generator Showcase */}
-                      <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-xl flex items-center justify-between">
-                        <div>
-                          <p className="text-xs text-zinc-400 uppercase tracking-widest font-black">Donation QR</p>
-                          <p className="text-sm text-white font-bold mt-1">With App Logo</p>
-                          <span className="text-xs text-violet-400 font-mono font-bold">Instant Scan</span>
-                        </div>
-                        <div className="bg-white p-1 rounded-lg flex items-center justify-center">
-                          <QRCodeCanvas
-                            value="https://superchat-nepal.com/donate/nodex-gaming"
-                            size={72}
-                            level="H"
-                            marginSize={1}
-                            imageSettings={{
-                              src: "/logo.png",
-                              height: 16,
-                              width: 16,
-                              excavate: true,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Mini Recent Donations Feed */}
-                    <div className="bg-zinc-900/80 border border-zinc-800 rounded-xl p-3.5 space-y-2">
-                      <p className="text-xs text-zinc-400 uppercase tracking-widest font-black px-1">
-                        Live Stream Superchat Ticker
-                      </p>
-                      <div className="space-y-1.5 text-xs sm:text-sm">
-                        <div className="flex items-center justify-between bg-zinc-950 p-2.5 rounded-lg border border-zinc-800/60">
-                          <span className="font-bold text-white">Suman Gurung</span>
-                          <span className="text-zinc-400 italic text-xs truncate max-w-[200px]">
-                            &ldquo;Chicken dinner celebration!&rdquo;
-                          </span>
-                          <span className="text-emerald-400 font-bold font-mono">रू 500</span>
-                        </div>
-                        <div className="flex items-center justify-between bg-zinc-950 p-2.5 rounded-lg border border-zinc-800/60">
-                          <span className="font-bold text-white">Pradeep K.</span>
-                          <span className="text-zinc-400 italic text-xs truncate max-w-[200px]">
-                            &ldquo;Keep it up bro!!&rdquo;
-                          </span>
-                          <span className="text-purple-400 font-bold font-mono">रू 250</span>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* 3. VIEWER SUPERCHAT FORM CLIP */}
-                {activeTab === 2 && (
-                  <motion.div
-                    key="viewer-donation"
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -15 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-full max-w-md mx-auto space-y-4"
-                  >
-                    <div className="text-center space-y-1">
-                      <div className="w-12 h-12 rounded-xl bg-violet-600/20 border border-violet-500/30 mx-auto flex items-center justify-center text-xl font-heading font-black text-white">
-                        N
-                      </div>
-                      <h4 className="text-xl font-heading font-black uppercase text-white">
-                        Donate to nodex-gaming
-                      </h4>
-                      <p className="text-sm text-zinc-400 font-medium">
-                        Select amount &amp; support directly with eSewa or Khalti
-                      </p>
-                    </div>
-
-                    <div className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl space-y-4">
-                      {/* Quick Amounts (14px font-bold) */}
-                      <div>
-                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 block mb-2">
-                          Quick Amount (NPR)
-                        </label>
-                        <div className="grid grid-cols-4 gap-2">
-                          {["100", "250", "500", "1000"].map((amt, idx) => (
-                            <div
-                              key={amt}
-                              className={`py-2 text-center rounded-lg text-sm font-mono font-bold border transition-colors ${
-                                idx === 2
-                                  ? "bg-violet-600 text-white border-violet-500"
-                                  : "bg-zinc-950 border-zinc-800 text-zinc-300"
-                              }`}
-                            >
-                              रू {amt}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Payment Method Selector (14px font-bold) */}
-                      <div>
-                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 block mb-2">
-                          Payment Gateway
-                        </label>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="p-2.5 rounded-xl border border-emerald-500 bg-emerald-950/20 text-emerald-400 text-sm font-bold flex items-center justify-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                            <span>eSewa ePay</span>
-                          </div>
-                          <div className="p-2.5 rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-400 text-sm font-bold flex items-center justify-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-zinc-600" />
-                            <span>Khalti Wallet</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Mock Submit Button (14px UI Text) */}
-                      <button
-                        type="button"
-                        className="w-full py-3 rounded-xl bg-emerald-600 text-white font-black uppercase tracking-wider text-sm transition-colors flex items-center justify-center gap-2"
-                      >
-                        <Icon icon={Wallet01Icon} size={16} />
-                        <span>Pay रू 500 via eSewa</span>
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Bottom Status Footer with 3 Looping Indicator Dots */}
-            <div className="px-5 py-3 border-t border-zinc-800/80 bg-zinc-900/40 flex items-center justify-between text-xs text-zinc-400 font-mono">
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-violet-400" />
-                <span>
-                  {activeTab === 0 && "Live OBS Alert Simulation"}
-                  {activeTab === 1 && "Streamer Analytics & QR Generator"}
-                  {activeTab === 2 && "Supporter eSewa & Khalti Checkout"}
-                </span>
-              </span>
-              <div className="flex items-center gap-1.5">
-                {[0, 1, 2].map((i) => (
-                  <span
-                    key={i}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                      activeTab === i ? "w-6 bg-violet-500" : "w-1.5 bg-zinc-700"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-medium text-white/65 sm:justify-between">
+          <span className="inline-flex items-center gap-1.5"><Icon icon={VolumeHighIcon} size={14} /> Audio chime</span>
+          <span className="inline-flex items-center gap-1.5"><Icon icon={Mic01Icon} size={14} /> Text-to-speech</span>
+          <span className="inline-flex items-center gap-1.5"><Icon icon={CheckmarkCircle01Icon} size={14} /> Payment verified</span>
         </div>
       </div>
-    </section>
+    </div>
+  );
+}
+
+function NepalFlag() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 32" className="h-4 w-3.5 shrink-0">
+      <path d="M2 2v28M3 3l17 8H3m0 1 13 7H3" fill="#DC2626" stroke="#1E3A8A" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
   );
 }

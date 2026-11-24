@@ -1,222 +1,159 @@
-import Image from "next/image";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/serverApi";
 import VideoHero from "@/components/common/VideoHero";
 import Icon from "@/components/common/Icon";
 import {
+  ArrowRight01Icon,
+  CheckmarkCircle01Icon,
+  Mic01Icon,
+  PaintBoardIcon,
+  Radio01Icon,
   Tv01Icon,
   VolumeHighIcon,
-  Mic01Icon,
   Wallet01Icon,
-  Radio01Icon,
-  PaintBoardIcon,
-  CheckmarkCircle01Icon,
-  ArrowRight01Icon,
 } from "@hugeicons/core-free-icons";
 
 export default async function LandingPage() {
   const user = await getCurrentUser();
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-violet-900 overflow-x-hidden">
-      {/* Full Viewport-Height Looping Video Hero Section */}
+    <main className="landing-page min-h-screen overflow-x-hidden bg-[#FAF7F1] text-[#1D1D20] selection:bg-orange-200">
       <VideoHero user={user} />
 
-      {/* Metrics & Highlights Section */}
-      <section className="relative py-12 px-5 max-w-7xl mx-auto border-b border-zinc-800">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-          <div className="p-6 rounded-xl bg-zinc-950 border border-zinc-800">
-            <p className="text-3xl sm:text-4xl font-black text-white font-heading">0%</p>
-            <p className="text-xs text-zinc-400 uppercase tracking-wider font-bold mt-1">
-              Monthly Platform Fee
-            </p>
+      <section aria-label="Platform facts" className="w-full border-y border-[#E9E4DB] bg-white px-5 py-7 sm:px-[8vw] sm:py-9">
+        <div className="mx-auto grid max-w-[1440px] grid-cols-1 divide-y divide-[#E9E4DB] text-center sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <Stat value="0%" label="Monthly platform fee" />
+          <Stat value="&lt; 100ms" label="OBS alert latency" accent />
+          <Stat value="100%" label="Local eSewa &amp; Khalti support" />
+        </div>
+      </section>
+
+      <section id="how-it-works" className="w-full px-5 py-16 sm:px-[8vw] sm:py-20">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="mb-9 max-w-2xl space-y-3">
+            <p className="text-sm font-semibold text-[#E8470A]">A simple setup</p>
+            <h2 className="font-heading text-3xl font-bold leading-tight tracking-tight text-[#1D1D20] sm:text-4xl">From link to live in three steps.</h2>
           </div>
-          <div className="p-6 rounded-xl bg-zinc-950 border border-zinc-800">
-            <p className="text-3xl sm:text-4xl font-black text-emerald-400 font-heading">&lt; 100ms</p>
-            <p className="text-xs text-zinc-400 uppercase tracking-wider font-bold mt-1">
-              OBS WebSocket Latency
-            </p>
-          </div>
-          <div className="p-6 rounded-xl bg-zinc-950 border border-zinc-800">
-            <p className="text-3xl sm:text-4xl font-black text-violet-400 font-heading">100%</p>
-            <p className="text-xs text-zinc-400 uppercase tracking-wider font-bold mt-1">
-              Nepali Gateways (eSewa &amp; Khalti)
-            </p>
+          <div className="grid gap-4 md:grid-cols-3">
+            <Step number="01" title="Connect your stream" text="Add your personal browser source to OBS or Streamlabs." detail="OBS browser source" />
+            <Step number="02" title="Share your donation link" text="Put your creator page in your stream description and community profiles." detail="eSewa and Khalti / NPR" />
+            <Step number="03" title="Celebrate live support" text="Donation alerts appear on stream with optional chimes and text-to-speech." detail="Live overlay alerts" />
           </div>
         </div>
       </section>
 
-      {/* Interactive OBS Overlay Showcase */}
-      <section id="overlay" className="relative py-20 px-5 max-w-7xl mx-auto border-b border-zinc-800">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-6 space-y-6">
-            <span className="text-xs font-black uppercase tracking-wider text-violet-400">
-              Zero Latency WebSocket Alerts
-            </span>
-            <h2 className="text-3xl sm:text-5xl font-heading font-black uppercase tracking-tight text-white">
-              Instant Alerts Directly in OBS Studio
-            </h2>
-            <p className="text-base text-zinc-400 leading-relaxed font-medium">
-              Copy your personal browser source URL into OBS Studio or Streamlabs. Whenever a viewer sends an eSewa or Khalti superchat, your stream celebrates with on-screen donor cards, audio effects, and automatic Text-to-Speech.
-            </p>
-            <div className="pt-2">
-              <Link
-                href="/register"
-                className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-6 py-3.5 rounded-xl font-black uppercase tracking-wider text-xs transition-colors"
-              >
-                <span>Set Up Your Overlay</span>
-                <Icon icon={ArrowRight01Icon} size={16} />
-              </Link>
-            </div>
+      <section id="overlay" className="grid w-full items-center gap-10 bg-[#FFF0DF] px-5 py-16 sm:px-[8vw] sm:py-20 lg:grid-cols-2 lg:gap-16">
+        <div className="mx-auto max-w-xl space-y-5 lg:mx-0">
+          <p className="text-sm font-semibold text-[#E8470A]">Made for your live stream</p>
+          <h2 className="font-heading text-3xl font-bold leading-tight tracking-tight text-[#1D1D20] sm:text-4xl">Good moments deserve a live reaction.</h2>
+          <p className="text-base leading-7 text-[#77736C]">
+            Add your personal browser source to OBS or Streamlabs. New eSewa and Khalti support appears on stream with alerts, sound, and optional text-to-speech.
+          </p>
+          <Link href="/register" className="inline-flex items-center gap-2 rounded-lg bg-[#FF4D0A] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#E74408]">
+            Set up your overlay <Icon icon={ArrowRight01Icon} size={16} />
+          </Link>
+        </div>
+        <ObsPreview />
+      </section>
+
+      <section id="features" className="w-full bg-[#FAF7F1] px-5 py-16 sm:px-[8vw] sm:py-20">
+        <div className="mx-auto w-full max-w-[1440px]">
+          <div className="mb-10 max-w-2xl space-y-3">
+            <p className="text-sm font-semibold text-[#E8470A]">Built for Nepali creators</p>
+            <h2 className="font-heading text-3xl font-bold leading-tight tracking-tight text-[#1D1D20] sm:text-4xl">Everything you need to stream and earn.</h2>
+            <p className="text-base leading-7 text-[#77736C]">Simple local payments and thoughtful tools that keep your community close.</p>
           </div>
-
-          <div className="lg:col-span-6 relative">
-            <div className="relative mx-auto w-full max-w-md">
-              {/* OBS Screen Frame (No shadows, No colored borders) */}
-              <div className="relative rounded-2xl bg-zinc-950 border border-zinc-800 p-6">
-                {/* Header bar */}
-                <div className="flex items-center justify-between pb-4 mb-4 border-b border-zinc-800">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
-                  </div>
-                  <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 bg-zinc-900 px-2.5 py-1 rounded border border-zinc-800 flex items-center gap-1.5">
-                    <Icon icon={Tv01Icon} size={14} className="text-violet-400" />
-                    OBS Live Stream
-                  </span>
-                </div>
-
-                {/* Superchat Alert Card (No shadows, No gradients) */}
-                <div className="rounded-xl p-6 bg-zinc-900 border border-zinc-800 text-center space-y-4">
-                  <div className="w-12 h-12 mx-auto rounded-lg bg-violet-600 text-white flex items-center justify-center font-black">
-                    <Icon icon={Tv01Icon} size={24} />
-                  </div>
-
-                  <div>
-                    <span className="text-xs font-black uppercase tracking-wider text-zinc-400 bg-zinc-950 px-3 py-1 rounded border border-zinc-800">
-                      SuperChat Nepal
-                    </span>
-                    <h3 className="text-2xl font-black uppercase text-white mt-2">
-                      Rohan Sharma
-                    </h3>
-                  </div>
-
-                  <div className="inline-block bg-zinc-950 border border-zinc-800 px-5 py-1.5 rounded-lg text-emerald-400 font-black text-2xl">
-                    रू 1,000
-                  </div>
-
-                  <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-xs sm:text-sm text-zinc-300 italic font-medium leading-relaxed">
-                    &ldquo;Bro clutch in the last circle was insane! Keep the streams coming.&rdquo;
-                  </div>
-
-                  <div className="flex items-center justify-center gap-3 text-xs text-zinc-400 font-mono pt-1">
-                    <span className="flex items-center gap-1">
-                      <Icon icon={VolumeHighIcon} size={12} />
-                      Audio Chime
-                    </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <Icon icon={Mic01Icon} size={12} />
-                      TTS Voice Aloud
-                    </span>
-                  </div>
-                </div>
-
-                {/* Bottom ticker demo */}
-                <div className="mt-4 pt-3 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-400 font-medium">
-                  <span className="flex items-center gap-1.5 text-zinc-300">
-                    <Icon icon={CheckmarkCircle01Icon} size={14} className="text-emerald-400" />
-                    Instant Verified
-                  </span>
-                  <span className="text-white font-bold">eSewa • Khalti</span>
-                </div>
-              </div>
-            </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            <Feature icon={Wallet01Icon} title="Direct local payments" text="Viewers support you using eSewa or Khalti with QR codes or quick checkout." />
+            <Feature icon={Radio01Icon} title="Live OBS alerts" text="Show every donation on stream with a sound chime and optional spoken message." />
+            <Feature icon={PaintBoardIcon} title="Your own style" text="Choose colors, upload GIFs, and tune how your alerts appear on screen." />
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 px-5 max-w-7xl mx-auto border-b border-zinc-800">
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-          <p className="text-xs font-black uppercase tracking-wider text-violet-400">
-            Built for Nepali Creators
-          </p>
-          <h2 className="text-3xl sm:text-5xl font-heading font-black uppercase tracking-tight text-white">
-            Everything You Need to Stream &amp; Earn
-          </h2>
-          <p className="text-sm sm:text-base text-zinc-400 font-medium">
-            No complicated merchant verification or overseas PayPal accounts required.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="rounded-2xl p-8 bg-zinc-950 border border-zinc-800">
-            <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-violet-400 mb-6">
-              <Icon icon={Wallet01Icon} size={24} />
-            </div>
-            <h3 className="text-xl font-heading font-black uppercase mb-2 text-white">
-              Direct Local Payments
-            </h3>
-            <p className="text-sm text-zinc-400 leading-relaxed font-medium">
-              Viewers can send superchats using their everyday eSewa or Khalti balance with QR codes or instant web checkout.
-            </p>
+      <footer className="w-full border-t border-[#E9E4DB] bg-white px-5 py-10 sm:px-[8vw]">
+        <div className="mx-auto grid max-w-[1440px] gap-8 text-sm text-[#77736C] md:grid-cols-[1.5fr_1fr_1fr]">
+          <div className="max-w-sm">
+            <p className="font-heading text-base font-bold text-[#1D1D20]">Superchat <span className="text-[#E8470A]">Nepal</span></p>
+            <p className="mt-2 leading-6">Local payments and live donation alerts, made for Nepali streamers.</p>
           </div>
-
-          <div className="rounded-2xl p-8 bg-zinc-950 border border-zinc-800">
-            <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-indigo-400 mb-6">
-              <Icon icon={Radio01Icon} size={24} />
-            </div>
-            <h3 className="text-xl font-heading font-black uppercase mb-2 text-white">
-              Zero-Lag OBS Alerts
-            </h3>
-            <p className="text-sm text-zinc-400 leading-relaxed font-medium">
-              Real-time WebSockets send donor alerts directly into your stream screen with pleasant sound chimes and automated speech.
-            </p>
+          <div className="flex flex-col gap-2">
+            <p className="mb-1 font-semibold text-[#1D1D20]">Explore</p>
+            <Link href="#features" className="transition-colors hover:text-[#E8470A]">Features</Link>
+            <Link href="#how-it-works" className="transition-colors hover:text-[#E8470A]">How it works</Link>
           </div>
-
-          <div className="rounded-2xl p-8 bg-zinc-950 border border-zinc-800">
-            <div className="w-12 h-12 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-emerald-400 mb-6">
-              <Icon icon={PaintBoardIcon} size={24} />
-            </div>
-            <h3 className="text-xl font-heading font-black uppercase mb-2 text-white">
-              Fully Customizable
-            </h3>
-            <p className="text-sm text-zinc-400 leading-relaxed font-medium">
-              Pick your stream colors, upload custom GIFs, tweak animation speeds, and position overlays anywhere on your broadcast.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-12 px-5 bg-black">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo.png"
-              alt="Superchat Nepal"
-              className="w-7 h-7 rounded-lg object-contain"
-            />
-            <span className="text-sm font-heading font-black uppercase tracking-wider text-white">
-              Superchat Nepal
-            </span>
-          </div>
-          <p className="text-xs text-zinc-500 font-medium">
-            Platform built for streamers and gaming creators across Nepal.
-          </p>
-          <div className="flex items-center gap-6 text-xs text-zinc-400 font-bold uppercase tracking-wider">
-            <Link href="/login" className="hover:text-white transition-colors">
-              Login
-            </Link>
-            <Link href="/register" className="hover:text-white transition-colors">
-              Register
-            </Link>
+          <div className="flex flex-col gap-2">
+            <p className="mb-1 font-semibold text-[#1D1D20]">Your account</p>
+            <Link href="/login" className="transition-colors hover:text-[#E8470A]">Login</Link>
+            <Link href="/register" className="transition-colors hover:text-[#E8470A]">Create account</Link>
           </div>
         </div>
       </footer>
+    </main>
+  );
+}
+
+function Stat({ value, label, accent = false }) {
+  return (
+    <div className="px-4 py-5 sm:py-2">
+      <p className={`font-heading text-3xl font-bold sm:text-4xl ${accent ? "text-[#E8470A]" : "text-[#1D1D20]"}`}>{value}</p>
+      <p className="mt-2 text-sm text-[#77736C]">{label}</p>
     </div>
+  );
+}
+
+function Step({ number, title, text, detail }) {
+  return (
+    <article className="rounded-xl border border-[#E9E4DB] bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:p-7">
+      <span className="mb-5 flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF0DF] font-heading text-xs font-bold text-[#E8470A]">{number}</span>
+      <h3 className="font-heading text-lg font-bold text-[#1D1D20]">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-[#77736C]">{text}</p>
+      <p className="mt-5 border-t border-[#F0ECE5] pt-3 text-xs font-semibold text-[#A83A12]">{detail}</p>
+    </article>
+  );
+}
+
+function ObsPreview() {
+  return (
+    <div className="product-preview mx-auto w-full max-w-2xl rounded-2xl border border-[#E9E4DB] bg-white p-3 shadow-[0_16px_45px_rgba(57,43,22,0.10)] sm:p-4">
+      <div className="flex items-center justify-between border-b border-[#E9E4DB] px-2 pb-3 text-xs text-[#77736C]">
+        <span className="flex items-center gap-2 font-semibold text-[#1D1D20]"><Icon icon={Tv01Icon} size={15} /> OBS Studio / Browser Source</span>
+        <span className="flex items-center gap-1.5 rounded-full bg-[#EAF5ED] px-2.5 py-1 font-semibold text-[#277443]"><span className="h-1.5 w-1.5 rounded-full bg-[#36A263]" /> Connected</span>
+      </div>
+      <div className="relative mt-3 min-h-[320px] overflow-hidden rounded-xl bg-[#1D1D20] p-4 text-white sm:min-h-[370px] sm:p-6">
+        <div className="mb-5 flex items-center justify-between text-[11px] font-medium text-white/65 sm:text-xs">
+          <span className="flex items-center gap-2"><span className="rounded bg-[#D83232] px-2 py-0.5 text-[10px] font-bold text-white">LIVE</span> Stream preview</span>
+          <span className="hidden sm:inline">Donation event / preview</span>
+        </div>
+        <div className="relative flex min-h-[235px] items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-[#29292E] p-4 sm:min-h-[280px] sm:p-6">
+          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-14 border-t border-white/5 bg-[#242428]" />
+          <div aria-hidden="true" className="absolute bottom-14 left-[8%] h-16 w-[14%] rounded-t bg-[#35353B]" />
+          <div aria-hidden="true" className="absolute bottom-14 right-[10%] h-24 w-[18%] rounded-t bg-[#35353B]" />
+          <div className="relative z-10 w-full max-w-sm rounded-xl border border-white/10 bg-[#111113]/95 p-4 text-center shadow-2xl sm:p-5">
+            <span className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-[#FF4D0A] font-heading text-sm font-extrabold text-white">N</span>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/55">Superchat received</p>
+            <h3 className="mt-1 font-heading text-lg font-bold text-white">Rohan Sharma</h3>
+            <p className="mt-1 font-heading text-2xl font-extrabold text-[#FF8A50]">NPR 1,000</p>
+            <p className="mt-3 rounded-lg bg-white/[0.06] px-3 py-2 text-xs leading-5 text-white/80">&ldquo;Bro, that last circle clutch was insane!&rdquo;</p>
+            <div className="mt-3 flex justify-center gap-2"><span className="rounded-md bg-[#FFF0DF] px-2.5 py-1 text-[10px] font-bold text-[#A83A12]">eSewa</span><span className="rounded-md bg-[#FFF0DF] px-2.5 py-1 text-[10px] font-bold text-[#A83A12]">Khalti</span></div>
+          </div>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-medium text-white/70 sm:justify-between">
+          <span className="flex items-center gap-1.5"><Icon icon={VolumeHighIcon} size={14} /> Audio chime</span>
+          <span className="flex items-center gap-1.5"><Icon icon={Mic01Icon} size={14} /> Text-to-speech</span>
+          <span className="flex items-center gap-1.5"><Icon icon={CheckmarkCircle01Icon} size={14} /> Payment verified</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Feature({ icon, title, text }) {
+  return (
+    <article className="group min-h-56 rounded-xl border border-[#E9E4DB] bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#F2C7A5] hover:shadow-md sm:p-7">
+      <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-[#FFF0DF] text-[#E8470A]"><Icon icon={icon} size={22} /></div>
+      <h3 className="mb-2 font-heading text-lg font-bold text-[#1D1D20]">{title}</h3>
+      <p className="max-w-sm text-sm leading-6 text-[#77736C]">{text}</p>
+    </article>
   );
 }

@@ -20,6 +20,7 @@ export default function DonationForm({ streamer }) {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
+  const themeColor = streamer.theme_color || streamer.themeColor || "#FF4D0A";
   const quickAmounts = [50, 100, 250, 500, 1000, 2500];
 
   const validate = () => {
@@ -109,23 +110,25 @@ export default function DonationForm({ streamer }) {
   };
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full rounded-3xl border border-[#e8e1d7] bg-white/90 p-4 shadow-[0_18px_55px_-32px_rgba(91,55,19,0.28)] sm:p-7 lg:p-8">
       {/* Main Donation Box (No gradients, No shadows, No colored borders) */}
-      <div className="rounded-2xl bg-zinc-950 border border-zinc-800 p-6 sm:p-10">
-        <form onSubmit={handlePayment} className="space-y-6">
+      <div>
+        <form onSubmit={handlePayment} className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:gap-8">
           {/* Amount Selector */}
           <div>
-            <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-3">
-              1. Choose Amount (NPR)
+            <label className="mb-3 block text-base font-bold text-[#29231e]">
+              <span className="mb-1 block text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: themeColor }}>Step 1</span>
+              Choose an amount <span className="text-xs font-medium text-[#887d72]">· NPR</span>
             </label>
 
-            <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-6 flex flex-col items-center justify-center">
+            <div className="rounded-2xl border border-[#f0e6d8] bg-[#fffaf3] p-4 sm:p-5 flex flex-col items-center justify-center">
               <div className="flex items-center justify-center gap-2">
-                <span className="text-3xl font-heading font-black text-zinc-500">रू</span>
+                <span className="text-2xl font-heading font-bold" style={{ color: themeColor }}>रु</span>
                 <input
                   type="number"
                   value={amount}
-                  className="w-48 bg-transparent text-center text-5xl sm:text-6xl font-heading font-black text-white outline-none placeholder:text-zinc-700"
+                  aria-label="Donation amount in Nepali rupees"
+                  className="w-40 bg-transparent text-center text-5xl font-heading font-extrabold tracking-tight text-[#211d1a] outline-none placeholder:text-[#c8bbaa]"
                   placeholder="100"
                   min="10"
                   max="100000"
@@ -137,28 +140,33 @@ export default function DonationForm({ streamer }) {
               </div>
 
               {errors.amount && (
-                <p className="text-red-400 text-xs font-bold mt-3">{errors.amount}</p>
+                <p className="text-red-600 text-xs font-bold mt-3">{errors.amount}</p>
               )}
 
               {/* Quick Amount Chips */}
-              <div className="flex flex-wrap justify-center gap-2 mt-6">
+              <div className="mt-4 grid w-full grid-cols-3 gap-2 sm:grid-cols-6">
                 {quickAmounts.map((amt) => {
                   const isSelected = amount === String(amt);
                   return (
                     <button
                       key={amt}
                       type="button"
+                      aria-pressed={isSelected}
                       onClick={() => {
                         setAmount(String(amt));
                         if (errors.amount) setErrors((prev) => ({ ...prev, amount: null }));
                       }}
-                      className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+                      className={`rounded-xl border px-2 py-2.5 text-xs font-bold transition ${isSelected
+                          ? "text-white shadow-sm"
+                          : "border-[#e8e1d7] bg-white text-[#51473e] hover:bg-slate-50"
+                        }`}
+                      style={
                         isSelected
-                          ? "bg-white text-black"
-                          : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
-                      }`}
+                          ? { backgroundColor: themeColor, borderColor: themeColor }
+                          : {}
+                      }
                     >
-                      रू {amt}
+                      रु {amt}
                     </button>
                   );
                 })}
@@ -169,13 +177,13 @@ export default function DonationForm({ streamer }) {
           {/* Supporter Name & Message */}
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">
-                2. Your Name
+              <label className="mb-2 block text-sm font-bold text-[#29231e]">
+                Your name
               </label>
               <input
                 type="text"
                 placeholder="e.g. Biraj, NepaliGamer"
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors"
+                className="w-full rounded-xl border border-[#e8e1d7] bg-[#fffdfa] px-4 py-3 text-sm font-medium text-[#29231e] placeholder:text-[#a69a8d] outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
                 value={name}
                 maxLength={50}
                 onChange={(e) => {
@@ -183,22 +191,22 @@ export default function DonationForm({ streamer }) {
                   if (errors.name) setErrors((prev) => ({ ...prev, name: null }));
                 }}
               />
-              {errors.name && <p className="text-red-400 text-xs font-bold mt-1.5">{errors.name}</p>}
+              {errors.name && <p className="mt-1.5 text-xs font-semibold text-red-600">{errors.name}</p>}
             </div>
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400">
-                  3. Superchat Message
+                <label className="text-sm font-bold text-[#29231e]">
+                  Message for the stream
                 </label>
-                <span className="text-xs text-zinc-400 font-mono">
+                <span className="text-xs tabular-nums text-[#887d72]">
                   {message.length}/300
                 </span>
               </div>
               <textarea
-                placeholder="Write a message to be read aloud via Text-to-Speech on stream..."
-                rows={3}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors resize-none"
+                placeholder="Write a message to be read aloud on stream…"
+                rows={4}
+                className="w-full resize-none rounded-xl border border-[#e8e1d7] bg-[#fffdfa] px-4 py-3 text-sm font-medium text-[#29231e] placeholder:text-[#a69a8d] outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
                 value={message}
                 maxLength={300}
                 onChange={(e) => {
@@ -211,71 +219,82 @@ export default function DonationForm({ streamer }) {
 
           {/* Gateway Selector */}
           <div>
-            <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-3">
-              4. Select Payment Gateway
-            </label>
-            <div className="grid grid-cols-2 gap-4">
+            <label className="mb-1 block text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: themeColor }}>Step 2</label>
+            <p className="mb-3 text-base font-bold text-[#29231e]">
+              Choose your payment
+            </p>
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setPaymentMethod("esewa")}
-                className={`p-4 rounded-xl border text-left transition-colors ${
+                aria-pressed={paymentMethod === "esewa"}
+                className={`rounded-xl border p-4 text-left transition ${paymentMethod === "esewa"
+                    ? "ring-2"
+                    : "border-[#e8e1d7] bg-white hover:border-slate-300"
+                  }`}
+                style={
                   paymentMethod === "esewa"
-                    ? "bg-zinc-900 border-zinc-500"
-                    : "bg-zinc-950 border-zinc-800 hover:border-zinc-700"
-                }`}
+                    ? { borderColor: themeColor, backgroundColor: `${themeColor}0D`, outlineColor: themeColor }
+                    : {}
+                }
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="flex items-center gap-2 text-sm font-bold text-white">
-                    <Icon icon={CheckmarkCircle01Icon} size={16} className="text-emerald-400" />
+                  <span className="flex items-center gap-2 text-sm font-bold text-[#29231e]">
+                    <Icon icon={CheckmarkCircle01Icon} size={16} className="text-emerald-600" />
                     eSewa
                   </span>
                   {paymentMethod === "esewa" && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: themeColor }} />
                   )}
                 </div>
-                <p className="text-xs text-zinc-400 font-medium">Instant Verification</p>
+                <p className="text-xs font-medium text-[#887d72]">Instant verification</p>
               </button>
 
               <button
                 type="button"
                 onClick={() => setPaymentMethod("khalti")}
-                className={`p-4 rounded-xl border text-left transition-colors ${
+                aria-pressed={paymentMethod === "khalti"}
+                className={`rounded-xl border p-4 text-left transition ${paymentMethod === "khalti"
+                    ? "ring-2"
+                    : "border-[#e8e1d7] bg-white hover:border-slate-300"
+                  }`}
+                style={
                   paymentMethod === "khalti"
-                    ? "bg-zinc-900 border-zinc-500"
-                    : "bg-zinc-950 border-zinc-800 hover:border-zinc-700"
-                }`}
+                    ? { borderColor: themeColor, backgroundColor: `${themeColor}0D`, outlineColor: themeColor }
+                    : {}
+                }
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="flex items-center gap-2 text-sm font-bold text-white">
-                    <Icon icon={Wallet01Icon} size={16} className="text-purple-400" />
+                  <span className="flex items-center gap-2 text-sm font-bold text-[#29231e]">
+                    <Icon icon={Wallet01Icon} size={16} className="text-violet-600" />
                     Khalti
                   </span>
                   {paymentMethod === "khalti" && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: themeColor }} />
                   )}
                 </div>
-                <p className="text-xs text-zinc-400 font-medium">Instant Sandbox / ePayment</p>
+                <p className="text-xs font-medium text-[#887d72]">Secure ePayment</p>
               </button>
             </div>
           </div>
 
           {/* Live On-Screen Preview */}
-          <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-4">
+          <div className="flex flex-col rounded-2xl border border-[#f0e6d8] bg-[#fffaf3] p-4 sm:p-5">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-black uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                <Icon icon={Radio01Icon} size={14} className="text-violet-400" />
+              <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[#71675e]">
+                <Icon icon={Radio01Icon} size={14} style={{ color: themeColor }} />
                 Live On-Stream Preview
               </span>
-              <span className="text-xs text-zinc-500 font-mono">OBS Alert</span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#887d72]"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />OBS alert</span>
             </div>
 
-            <div className="rounded-lg bg-zinc-950 border border-zinc-800 p-4 text-center space-y-1.5">
-              <p className="text-xs font-black uppercase tracking-tight text-white">
+            <div className="flex min-h-36 flex-1 flex-col items-center justify-center rounded-xl border border-[#eee3d5] bg-white px-4 py-5 text-center">
+              <p className="text-sm font-extrabold text-[#29231e]">
                 {name || "Your Name"}{" "}
-                <span className="text-violet-400 font-black">sent रू {amount || "0"}</span>
+                <span className="font-black" style={{ color: themeColor }}>sent रु {amount || "0"}</span>
               </p>
               {message && (
-                <p className="text-xs text-zinc-300 italic max-w-sm mx-auto">
+                <p className="mx-auto mt-2 max-w-sm text-sm leading-5 text-[#71675e]">
                   &ldquo;{message}&rdquo;
                 </p>
               )}
@@ -286,14 +305,20 @@ export default function DonationForm({ streamer }) {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-violet-600 hover:bg-violet-700 text-white font-black py-4 rounded-xl text-xs uppercase tracking-wider transition-colors disabled:opacity-50"
+            className="w-full rounded-xl px-5 py-4 text-sm font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-55 lg:col-span-2 active:scale-98"
+            style={{ backgroundColor: themeColor }}
           >
             {isLoading
               ? "Processing..."
-              : `Send रू ${amount || "0"} Superchat`}
+              : `Send रु ${amount || "0"} superchat`}
           </button>
-        </form>
-      </div>
+          {isLoading
+            ? "Processing..."
+            : `Send रु ${amount || "0"} superchat`}
+        </button>
+        <p className="-mt-4 text-center text-[11px] text-[#887d72] lg:col-span-2">Secure checkout through {paymentMethod === "esewa" ? "eSewa" : "Khalti"}.</p>
+      </form>
     </div>
+    </div >
   );
 }

@@ -7,16 +7,13 @@ import Icon from "@/components/common/Icon";
 import { CheckmarkCircle01Icon, Alert01Icon } from "@hugeicons/core-free-icons";
 
 function DonateSuccessContent() {
-  const [status, setStatus] = useState("checking");
-  const [errorMsg, setErrorMsg] = useState("");
-  const streamerRef = useRef(null);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [status, setStatus] = useState("checking");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [streamerName, setStreamerName] = useState(() => searchParams.get("streamer") || "");
 
   useEffect(() => {
-    const urlStreamer = searchParams.get("streamer");
-    if (urlStreamer) streamerRef.current = urlStreamer;
-
     const verifyPayment = async () => {
       const dataParam = searchParams.get("data");
       const pidxParam = searchParams.get("pidx");
@@ -45,7 +42,7 @@ function DonateSuccessContent() {
           const result = await response.json().catch(() => ({}));
           if (response.ok && result.success) {
             if (result.donation?.streamer) {
-              streamerRef.current = result.donation.streamer;
+              setStreamerName(result.donation.streamer);
             }
             setStatus("completed");
             sessionStorage.removeItem("pending_donation_id");
@@ -74,7 +71,7 @@ function DonateSuccessContent() {
             const result = await response.json().catch(() => ({}));
             if (result.success) {
               if (result.donation?.streamer) {
-                streamerRef.current = result.donation.streamer;
+                setStreamerName(result.donation.streamer);
               }
               setStatus("completed");
               sessionStorage.removeItem("pending_donation_id");
@@ -157,9 +154,9 @@ function DonateSuccessContent() {
       </p>
 
       <div className="flex items-center gap-3 mt-8">
-        {streamerRef.current ? (
+        {streamerName ? (
           <Link
-            href={`/donate/${streamerRef.current}`}
+            href={`/donate/${streamerName}`}
             className="bg-white hover:bg-zinc-200 text-black px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-colors"
           >
             Send Another

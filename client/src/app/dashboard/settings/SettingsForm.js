@@ -15,13 +15,17 @@ import {
   PlayIcon,
   VolumeHighIcon,
   RefreshIcon,
+  Upload01Icon,
+  Delete01Icon,
 } from "@hugeicons/core-free-icons";
 
 const Section = ({ title, icon, children }) => (
-  <section className="bg-zinc-950 border border-zinc-800 p-6 rounded-2xl space-y-5">
-    <div className="flex items-center gap-2.5 pb-3 border-b border-zinc-800">
-      <Icon icon={icon} size={18} className="text-violet-400" />
-      <h2 className="text-xs font-black text-zinc-300 uppercase tracking-wider">
+  <section className="bg-white dark:bg-[#131620] border border-[#E5EAF1] dark:border-[#222736] p-5 sm:p-6 rounded-2xl space-y-4 shadow-xs">
+    <div className="flex items-center gap-2 pb-3 border-b border-[#E5EAF1] dark:border-[#222736]">
+      <div className="w-7 h-7 rounded-lg bg-orange-50 dark:bg-orange-500/10 text-[#FF4D0A] flex items-center justify-center">
+        <Icon icon={icon} size={15} />
+      </div>
+      <h2 className="text-xs font-bold text-[#1D1D20] dark:text-[#F4F5F8] uppercase tracking-wider">
         {title}
       </h2>
     </div>
@@ -30,17 +34,25 @@ const Section = ({ title, icon, children }) => (
 );
 
 const Field = ({ label, hint, children }) => (
-  <div>
-    <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-1.5">
+  <div className="space-y-1.5">
+    <label className="block text-xs font-semibold text-[#1D1D20] dark:text-[#F4F5F8] uppercase tracking-wider">
       {label}
     </label>
     {children}
-    {hint && <p className="text-[11px] text-zinc-500 mt-1">{hint}</p>}
+    {hint && <p className="text-xs text-[#777B87] dark:text-[#949AA8]">{hint}</p>}
   </div>
 );
 
 const inputCls =
-  "w-full bg-zinc-900 border border-zinc-800 focus:border-zinc-600 p-3 rounded-xl text-sm font-medium outline-none transition-colors text-white placeholder-zinc-600";
+  "w-full bg-slate-50 dark:bg-[#181C28] border border-[#E5EAF1] dark:border-[#222736] focus:border-[#FF4D0A] dark:focus:border-[#FF4D0A] px-3.5 py-2.5 rounded-xl text-xs text-[#1D1D20] dark:text-[#F4F5F8] placeholder-[#777B87] dark:placeholder-[#949AA8] outline-none transition-colors shadow-2xs";
+
+function colorForPicker(color) {
+  if (typeof color !== "string") return "#320064";
+  if (/^#[\da-f]{6}$/i.test(color)) return color;
+  const rgb = color.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+  if (!rgb) return "#320064";
+  return `#${rgb.slice(1, 4).map((value) => Number(value).toString(16).padStart(2, "0")).join("")}`;
+}
 
 function playChime() {
   try {
@@ -82,7 +94,7 @@ export default function SettingsForm({ initialProfile }) {
   const [formData, setFormData] = useState({
     display_name: initialProfile?.display_name || "",
     bio: initialProfile?.bio || "",
-    theme_color: initialProfile?.theme_color || "#7c3aed",
+    theme_color: initialProfile?.theme_color || "#FF4D0A",
     welcome_title: initialProfile?.welcome_title || "Support My Stream",
     welcome_sub: initialProfile?.welcome_sub || "Your support helps me keep creating content!",
     youtube_url: initialProfile?.youtube_url || "",
@@ -127,15 +139,19 @@ export default function SettingsForm({ initialProfile }) {
     }
   }, [addToast]);
 
-  useAutoSave(formData, saveProfile, 3000);
+  useAutoSave(formData, saveProfile, 4000);
 
-  const set = (key) => (e) => {
-    setFormData({ ...formData, [key]: e.target.value });
+  const updateField = (key, value) => {
+    setFormData((current) => ({ ...current, [key]: value }));
     setSaveStatus("changed");
   };
 
+  const set = (key) => (e) => {
+    updateField(key, e.target.value);
+  };
+
   const toggle = (key) => () => {
-    setFormData({ ...formData, [key]: !formData[key] });
+    setFormData((prev) => ({ ...prev, [key]: !prev[key] }));
     setSaveStatus("changed");
   };
 
@@ -174,7 +190,6 @@ export default function SettingsForm({ initialProfile }) {
     }, (formData.alert_duration || 5) * 1000);
   };
 
-  // Entrance animation variants for the preview
   const getAnimationVariants = () => {
     switch (formData.alert_animation) {
       case "fade":
@@ -213,48 +228,64 @@ export default function SettingsForm({ initialProfile }) {
       : "justify-start pt-4";
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1550px] mx-auto text-[#1D1D20] dark:text-[#F4F5F8]">
       {/* Top Header & Save Status */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E5EAF1] dark:border-[#222736]">
         <div>
-          <p className="text-xs text-violet-400 uppercase tracking-widest font-black mb-1">
+          <p className="text-xs text-[#FF4D0A] uppercase tracking-wider font-bold mb-1">
             Dashboard / OBS Studio
           </p>
-          <h1 className="text-2xl sm:text-3xl font-heading font-black uppercase tracking-tight text-white">
+          <h1 className="text-2xl sm:text-3xl font-heading font-extrabold tracking-tight text-[#1D1D20] dark:text-[#F4F5F8]">
             Alert &amp; Stream Settings
           </h1>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-xs font-bold uppercase tracking-wider">
-            {saveStatus === "saving" && <span className="text-violet-400">Saving...</span>}
-            {saveStatus === "saved" && (
-              <span className="text-emerald-400 flex items-center gap-1">
-                <Icon icon={CheckmarkCircle01Icon} size={14} /> Saved
+          {/* Status Indicator */}
+          <div className="text-xs font-semibold">
+            {saveStatus === "saving" && (
+              <span className="text-[#FF4D0A] flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D0A] animate-ping" />
+                Saving changes...
               </span>
             )}
-            {saveStatus === "error" && <span className="text-red-400">Save failed</span>}
-            {saveStatus === "changed" && <span className="text-indigo-400">● Unsaved changes</span>}
-          </span>
+            {saveStatus === "saved" && (
+              <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                <Icon icon={CheckmarkCircle01Icon} size={15} /> All changes saved
+              </span>
+            )}
+            {saveStatus === "error" && (
+              <span className="text-rose-500 font-semibold">Save failed</span>
+            )}
+            {saveStatus === "changed" && (
+              <span className="text-amber-500 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                Unsaved changes
+              </span>
+            )}
+          </div>
+
+          {/* Unified Save Button */}
           <button
             type="button"
             onClick={() => saveProfile(formData)}
-            className="bg-violet-600 hover:bg-violet-700 text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-colors"
+            disabled={saveStatus === "saving"}
+            className="bg-[#FF4D0A] hover:bg-[#E04307] active:scale-98 text-white px-5 py-2 rounded-xl text-xs font-semibold transition-all shadow-xs disabled:opacity-50"
           >
-            Save Now
+            {saveStatus === "saving" ? "Saving..." : "Save Settings"}
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Settings Configuration Form */}
-        <div className="lg:col-span-7 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Form Configuration */}
+        <div className="lg:col-span-7 space-y-5">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               saveProfile(formData);
             }}
-            className="space-y-6"
+            className="space-y-5"
           >
             {/* 1. OBS Popup Alert Settings */}
             <Section title="OBS Popup Alert Box" icon={Notification01Icon}>
@@ -288,7 +319,7 @@ export default function SettingsForm({ initialProfile }) {
                 </Field>
               </div>
 
-              <div className="pt-2">
+              <div className="pt-1">
                 <Field
                   label="Custom Alert GIF / Animation"
                   hint="Upload a .gif or image, or leave blank to use the built-in celebration animation."
@@ -300,36 +331,40 @@ export default function SettingsForm({ initialProfile }) {
                     className="hidden"
                     onChange={handleFileSelect}
                   />
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     <button
                       type="button"
                       onClick={() => gifInputRef.current?.click()}
                       disabled={uploading.gif}
-                      className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 px-4 py-2.5 rounded-xl text-xs font-bold text-zinc-300 transition-colors"
+                      className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-[#181C28] hover:bg-slate-200 dark:hover:bg-[#1E2333] border border-[#E5EAF1] dark:border-[#222736] px-4 py-2 rounded-xl text-xs font-semibold text-[#1D1D20] dark:text-[#F4F5F8] transition-colors"
                     >
-                      {uploading.gif
-                        ? "Loading..."
-                        : formData.alert_gif_url
-                        ? "Change GIF"
-                        : "Upload Custom GIF"}
+                      <Icon icon={Upload01Icon} size={14} />
+                      <span>
+                        {uploading.gif
+                          ? "Loading..."
+                          : formData.alert_gif_url
+                          ? "Change GIF"
+                          : "Upload Custom GIF"}
+                      </span>
                     </button>
                     {formData.alert_gif_url && (
                       <button
                         type="button"
                         onClick={() => {
-                          setFormData({ ...formData, alert_gif_url: "" });
+                          setFormData((prev) => ({ ...prev, alert_gif_url: "" }));
                           setSaveStatus("changed");
                         }}
-                        className="text-xs text-red-400 hover:text-red-300 font-bold px-2 py-1"
+                        className="inline-flex items-center gap-1 text-xs text-rose-500 hover:text-rose-600 font-semibold px-2 py-1"
                       >
-                        Remove Custom GIF
+                        <Icon icon={Delete01Icon} size={13} />
+                        <span>Remove Custom GIF</span>
                       </button>
                     )}
                   </div>
                 </Field>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4 pt-2">
+              <div className="grid md:grid-cols-2 gap-4 pt-1">
                 <Field
                   label="On-Screen Position"
                   hint="Where the alert appears in your OBS browser source."
@@ -365,7 +400,7 @@ export default function SettingsForm({ initialProfile }) {
 
             {/* 2. Text-to-Speech (TTS) Settings */}
             <Section title="Automated Text-to-Speech (TTS)" icon={Mic01Icon}>
-              <div className="grid md:grid-cols-2 gap-6 items-center">
+              <div className="grid md:grid-cols-2 gap-5 items-center">
                 <Field
                   label="Enable Voice Reader"
                   hint="Reads donor name and message aloud automatically."
@@ -373,13 +408,14 @@ export default function SettingsForm({ initialProfile }) {
                   <button
                     type="button"
                     onClick={toggle("tts_enabled")}
-                    className={`relative w-14 h-7 rounded-full transition-colors ${
-                      formData.tts_enabled ? "bg-violet-600" : "bg-zinc-800"
+                    className={`relative w-12 h-6 rounded-full transition-colors ${
+                      formData.tts_enabled ? "bg-[#FF4D0A]" : "bg-slate-300 dark:bg-zinc-700"
                     }`}
+                    aria-label="Toggle text to speech"
                   >
                     <span
-                      className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform ${
-                        formData.tts_enabled ? "translate-x-7" : ""
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform shadow-xs ${
+                        formData.tts_enabled ? "translate-x-6" : ""
                       }`}
                     />
                   </button>
@@ -394,7 +430,7 @@ export default function SettingsForm({ initialProfile }) {
                     min="0.5"
                     max="1.5"
                     step="0.1"
-                    className="w-full accent-violet-500 cursor-pointer"
+                    className="w-full accent-[#FF4D0A] cursor-pointer"
                     value={formData.tts_rate}
                     onChange={set("tts_rate")}
                   />
@@ -402,20 +438,20 @@ export default function SettingsForm({ initialProfile }) {
               </div>
             </Section>
 
-            {/* 3. Color Scheme */}
+            {/* 3. Color Styling */}
             <Section title="Color Styling" icon={PaintBoardIcon}>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
                 <Field label="Donor Name Color">
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
-                      className="w-9 h-9 rounded-lg cursor-pointer bg-transparent border-0 p-0"
+                      className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0"
                       value={formData.alert_text_color}
                       onChange={set("alert_text_color")}
                     />
                     <input
                       type="text"
-                      className={`${inputCls} font-mono text-xs`}
+                      className={`${inputCls} font-mono`}
                       value={formData.alert_text_color}
                       onChange={set("alert_text_color")}
                     />
@@ -426,13 +462,13 @@ export default function SettingsForm({ initialProfile }) {
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
-                      className="w-9 h-9 rounded-lg cursor-pointer bg-transparent border-0 p-0"
+                      className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0"
                       value={formData.alert_amount_color}
                       onChange={set("alert_amount_color")}
                     />
                     <input
                       type="text"
-                      className={`${inputCls} font-mono text-xs`}
+                      className={`${inputCls} font-mono`}
                       value={formData.alert_amount_color}
                       onChange={set("alert_amount_color")}
                     />
@@ -443,13 +479,13 @@ export default function SettingsForm({ initialProfile }) {
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
-                      className="w-9 h-9 rounded-lg cursor-pointer bg-transparent border-0 p-0"
+                      className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0"
                       value={formData.alert_message_color}
                       onChange={set("alert_message_color")}
                     />
                     <input
                       type="text"
-                      className={`${inputCls} font-mono text-xs`}
+                      className={`${inputCls} font-mono`}
                       value={formData.alert_message_color}
                       onChange={set("alert_message_color")}
                     />
@@ -460,13 +496,13 @@ export default function SettingsForm({ initialProfile }) {
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
-                      className="w-9 h-9 rounded-lg cursor-pointer bg-transparent border-0 p-0"
+                      className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0"
                       value={formData.theme_color}
                       onChange={set("theme_color")}
                     />
                     <input
                       type="text"
-                      className={`${inputCls} font-mono text-xs`}
+                      className={`${inputCls} font-mono`}
                       value={formData.theme_color}
                       onChange={set("theme_color")}
                     />
@@ -477,13 +513,13 @@ export default function SettingsForm({ initialProfile }) {
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
-                      className="w-9 h-9 rounded-lg cursor-pointer bg-transparent border-0 p-0"
+                      className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0"
                       value={formData.alert_border_color || formData.theme_color}
                       onChange={set("alert_border_color")}
                     />
                     <input
                       type="text"
-                      className={`${inputCls} font-mono text-xs`}
+                      className={`${inputCls} font-mono`}
                       value={formData.alert_border_color}
                       placeholder={formData.theme_color}
                       onChange={set("alert_border_color")}
@@ -493,27 +529,56 @@ export default function SettingsForm({ initialProfile }) {
 
                 <Field
                   label="Card Background"
-                  hint="Any CSS color, including rgba() for transparency."
+                  hint="Color or transparent"
                 >
-                  <input
-                    type="text"
-                    className={`${inputCls} font-mono text-xs`}
-                    value={formData.alert_bg_color}
-                    onChange={set("alert_bg_color")}
-                  />
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        aria-label="Choose card background color"
+                        className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0 disabled:opacity-50"
+                        value={colorForPicker(formData.alert_bg_color)}
+                        disabled={formData.alert_bg_color === "transparent"}
+                        onChange={(e) => updateField("alert_bg_color", e.target.value)}
+                      />
+                      <input
+                        type="text"
+                        aria-label="Card background CSS color"
+                        className={`${inputCls} font-mono`}
+                        value={formData.alert_bg_color}
+                        onChange={set("alert_bg_color")}
+                      />
+                    </div>
+                    <label className="inline-flex items-center gap-1.5 text-xs text-[#777B87] dark:text-[#949AA8] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="w-3.5 h-3.5 accent-[#FF4D0A]"
+                        checked={formData.alert_bg_color === "transparent"}
+                        onChange={(e) =>
+                          updateField(
+                            "alert_bg_color",
+                            e.target.checked ? "transparent" : "#131620"
+                          )
+                        }
+                      />
+                      <span>Make transparent</span>
+                    </label>
+                  </div>
                 </Field>
 
-                <Field
-                  label="Alert Font Family"
-                  hint="Any CSS font stack, e.g. Poppins, sans-serif."
-                >
-                  <input
-                    type="text"
-                    className={inputCls}
-                    value={formData.alert_font_family}
-                    onChange={set("alert_font_family")}
-                  />
-                </Field>
+                <div className="col-span-2 sm:col-span-3">
+                  <Field
+                    label="Alert Font Family"
+                    hint="Any CSS font stack, e.g. Inter, sans-serif or Poppins."
+                  >
+                    <input
+                      type="text"
+                      className={inputCls}
+                      value={formData.alert_font_family}
+                      onChange={set("alert_font_family")}
+                    />
+                  </Field>
+                </div>
               </div>
             </Section>
 
@@ -554,24 +619,24 @@ export default function SettingsForm({ initialProfile }) {
           </form>
         </div>
 
-        {/* Right Column: Live OBS Alert Preview Section Before Saving */}
+        {/* Right Column: Live OBS Alert Preview Section */}
         <div className="lg:col-span-5 sticky top-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Icon icon={Tv01Icon} size={16} className="text-violet-400" />
-              <p className="text-xs font-black uppercase tracking-wider text-white">
+              <Icon icon={Tv01Icon} size={16} className="text-[#FF4D0A]" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#1D1D20] dark:text-[#F4F5F8]">
                 Live Alert Preview
-              </p>
+              </h2>
             </div>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#777B87] dark:text-[#949AA8] bg-slate-100 dark:bg-[#181C28] border border-[#E5EAF1] dark:border-[#222736] px-2 py-0.5 rounded-md">
               OBS 800 × 600
             </span>
           </div>
 
           {/* Interactive Simulation Frame */}
-          <div className="bg-black border border-zinc-800 rounded-2xl p-4 sm:p-6 min-h-[360px] flex flex-col relative overflow-hidden">
-            {/* Position indicator & Header bar */}
-            <div className="flex items-center justify-between pb-3 mb-2 border-b border-zinc-800/80 text-[10px] text-zinc-500 font-mono">
+          <div className="bg-[#090A0F] border border-zinc-800 rounded-2xl p-4 sm:p-5 min-h-[380px] flex flex-col relative overflow-hidden shadow-md">
+            {/* Position indicator */}
+            <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-zinc-800 text-[10px] text-zinc-500 font-mono">
               <span>Position: {formData.alert_position}</span>
               <span>Animation: {formData.alert_animation}</span>
             </div>
@@ -583,52 +648,52 @@ export default function SettingsForm({ initialProfile }) {
                   key={previewKey}
                   {...getAnimationVariants()}
                   transition={{ duration: 0.35, ease: "easeOut" }}
-                  className="w-full max-w-sm rounded-xl p-5 text-center border"
+                  className="w-full max-w-xs sm:max-w-sm rounded-xl p-4 text-center border"
                   style={{
                     backgroundColor: formData.alert_bg_color || "rgba(11, 15, 25, 0.95)",
                     borderColor: formData.alert_border_color || formData.theme_color || "#3f3f46",
                     fontFamily: formData.alert_font_family || "Inter, sans-serif",
                   }}
                 >
-                  {/* Visual Gift/Image or Default Badge */}
+                  {/* GIF / Icon */}
                   {formData.alert_gif_url ? (
-                    <div className="mb-3">
+                    <div className="mb-2">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={formData.alert_gif_url}
-                        alt="Alert preview gif"
-                        className="w-20 h-20 mx-auto object-contain"
+                        alt="Alert preview"
+                        className="w-16 h-16 mx-auto object-contain"
                       />
                     </div>
                   ) : (
-                    <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-violet-400">
-                      <Icon icon={Tv01Icon} size={20} />
+                    <div className="w-9 h-9 mx-auto mb-2 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-[#FF4D0A]">
+                      <Icon icon={Tv01Icon} size={18} />
                     </div>
                   )}
 
                   {/* Header Badge */}
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider mb-2 border border-zinc-800 bg-zinc-900 text-zinc-300">
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 border border-zinc-800 bg-zinc-900 text-zinc-300">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/logo.png"
                       alt="Logo"
-                      className="w-3.5 h-3.5 rounded-sm object-contain"
+                      className="w-3.5 h-3.5 object-contain"
                     />
-                    SuperChat Nepal
+                    <span>Superchat Nepal</span>
                   </div>
 
                   {/* Donor Name */}
                   <h3
-                    className="text-xl font-black uppercase tracking-tight truncate mb-1"
+                    className="text-lg font-heading font-extrabold uppercase tracking-tight truncate mb-1"
                     style={{ color: formData.alert_text_color || "#ffffff" }}
                   >
                     Rohan Sharma
                   </h3>
 
                   {/* Amount Badge */}
-                  <div className="flex justify-center mb-2.5">
+                  <div className="flex justify-center mb-2">
                     <div
-                      className="px-4 py-1 rounded-lg font-black text-xl border border-zinc-800 bg-zinc-900 flex items-center gap-1"
+                      className="px-3 py-0.5 rounded-lg font-heading font-extrabold text-lg border border-zinc-800 bg-zinc-900/90 flex items-center gap-1"
                       style={{ color: formData.alert_amount_color || "#34d399" }}
                     >
                       <span>रू</span>
@@ -638,17 +703,17 @@ export default function SettingsForm({ initialProfile }) {
 
                   {/* Message Bubble */}
                   <div
-                    className="px-3 py-2 rounded-lg border border-zinc-800 bg-zinc-900 text-xs font-medium italic leading-relaxed"
+                    className="px-3 py-1.5 rounded-lg border border-zinc-800 bg-zinc-900/80 text-xs font-medium italic leading-relaxed"
                     style={{ color: formData.alert_message_color || "#f1f5f9" }}
                   >
                     &ldquo;Bro clutch was insane! Keep the streams coming.&rdquo;
                   </div>
 
                   {/* Features Footer info */}
-                  <div className="flex items-center justify-center gap-2 text-[9px] text-zinc-400 font-mono mt-3 pt-2 border-t border-zinc-800">
+                  <div className="flex items-center justify-center gap-2 text-[9px] text-zinc-400 font-mono mt-2.5 pt-2 border-t border-zinc-800/80">
                     <span className="flex items-center gap-1">
                       <Icon icon={VolumeHighIcon} size={10} />
-                      Audio Chime
+                      Chime
                     </span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
@@ -661,26 +726,19 @@ export default function SettingsForm({ initialProfile }) {
             </div>
           </div>
 
-          {/* Preview Trigger and Action Buttons */}
-          <div className="space-y-2 pt-1">
-            <button
-              type="button"
-              onClick={triggerPreview}
-              className="w-full flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-white py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
-            >
-              <Icon icon={isPlayingPreview ? RefreshIcon : PlayIcon} size={15} className="text-violet-400" />
-              <span>{isPlayingPreview ? "Replaying Alert..." : "Test Alert Animation & Sound"}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => saveProfile(formData)}
-              disabled={saveStatus === "saving"}
-              className="w-full bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5 rounded-xl text-xs uppercase tracking-wider transition-colors disabled:opacity-50"
-            >
-              {saveStatus === "saving" ? "Saving..." : "Save All Stream Settings"}
-            </button>
-          </div>
+          {/* Test Button */}
+          <button
+            type="button"
+            onClick={triggerPreview}
+            className="w-full flex items-center justify-center gap-2 bg-slate-100 dark:bg-[#181C28] hover:bg-slate-200 dark:hover:bg-[#1E2333] border border-[#E5EAF1] dark:border-[#222736] text-[#1D1D20] dark:text-[#F4F5F8] py-2.5 rounded-xl text-xs font-semibold transition-colors shadow-2xs"
+          >
+            <Icon
+              icon={isPlayingPreview ? RefreshIcon : PlayIcon}
+              size={14}
+              className="text-[#FF4D0A]"
+            />
+            <span>{isPlayingPreview ? "Replaying Alert..." : "Test Alert Animation & Sound"}</span>
+          </button>
         </div>
       </div>
     </div>

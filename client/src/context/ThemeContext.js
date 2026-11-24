@@ -4,8 +4,8 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 const ThemeContext = createContext();
 
 function getInitialTheme() {
-  if (typeof window === 'undefined') return 'dark';
-  return localStorage.getItem('app-theme') || 'dark';
+  if (typeof window === 'undefined') return 'light';
+  return localStorage.getItem('app-theme') || 'light';
 }
 
 export function ThemeProvider({ children }) {
@@ -35,8 +35,14 @@ export function ThemeProvider({ children }) {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
+  const setExplicitTheme = (mode) => {
+    if (mode === 'dark' || mode === 'light') {
+      setTheme(mode);
+    }
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme: setExplicitTheme }}>
       {children}
     </ThemeContext.Provider>
   );
