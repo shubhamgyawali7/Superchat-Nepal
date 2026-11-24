@@ -81,8 +81,8 @@ export default async function LandingPage() {
                     <span className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
                     <span className="w-2.5 h-2.5 rounded-full bg-zinc-700" />
                   </div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 bg-zinc-900 px-2.5 py-1 rounded border border-zinc-800 flex items-center gap-1.5">
-                    <Icon icon={Tv01Icon} size={12} className="text-violet-400" />
+                  <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 bg-zinc-900 px-2.5 py-1 rounded border border-zinc-800 flex items-center gap-1.5">
+                    <Icon icon={Tv01Icon} size={14} className="text-violet-400" />
                     OBS Live Stream
                   </span>
                 </div>
@@ -94,7 +94,7 @@ export default async function LandingPage() {
                   </div>
 
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-zinc-400 bg-zinc-950 px-3 py-1 rounded border border-zinc-800">
+                    <span className="text-xs font-black uppercase tracking-wider text-zinc-400 bg-zinc-950 px-3 py-1 rounded border border-zinc-800">
                       SuperChat Nepal
                     </span>
                     <h3 className="text-2xl font-black uppercase text-white mt-2">
@@ -106,11 +106,11 @@ export default async function LandingPage() {
                     रू 1,000
                   </div>
 
-                  <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-xs text-zinc-300 italic font-medium leading-relaxed">
+                  <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg text-xs sm:text-sm text-zinc-300 italic font-medium leading-relaxed">
                     &ldquo;Bro clutch in the last circle was insane! Keep the streams coming.&rdquo;
                   </div>
 
-                  <div className="flex items-center justify-center gap-3 text-[10px] text-zinc-400 font-mono pt-1">
+                  <div className="flex items-center justify-center gap-3 text-xs text-zinc-400 font-mono pt-1">
                     <span className="flex items-center gap-1">
                       <Icon icon={VolumeHighIcon} size={12} />
                       Audio Chime

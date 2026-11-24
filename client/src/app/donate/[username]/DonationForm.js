@@ -152,7 +152,7 @@ export default function DonationForm({ streamer }) {
                         setAmount(String(amt));
                         if (errors.amount) setErrors((prev) => ({ ...prev, amount: null }));
                       }}
-                      className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors ${
+                      className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
                         isSelected
                           ? "bg-white text-black"
                           : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
@@ -175,7 +175,7 @@ export default function DonationForm({ streamer }) {
               <input
                 type="text"
                 placeholder="e.g. Biraj, NepaliGamer"
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors"
                 value={name}
                 maxLength={50}
                 onChange={(e) => {
@@ -191,14 +191,14 @@ export default function DonationForm({ streamer }) {
                 <label className="block text-xs font-black uppercase tracking-wider text-zinc-400">
                   3. Superchat Message
                 </label>
-                <span className="text-[10px] text-zinc-500 font-mono">
+                <span className="text-xs text-zinc-400 font-mono">
                   {message.length}/300
                 </span>
               </div>
               <textarea
                 placeholder="Write a message to be read aloud via Text-to-Speech on stream..."
                 rows={3}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors resize-none"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-base font-medium text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors resize-none"
                 value={message}
                 maxLength={300}
                 onChange={(e) => {
@@ -233,7 +233,7 @@ export default function DonationForm({ streamer }) {
                     <span className="w-1.5 h-1.5 rounded-full bg-white" />
                   )}
                 </div>
-                <p className="text-[10px] text-zinc-400 font-medium">Instant Verification</p>
+                <p className="text-xs text-zinc-400 font-medium">Instant Verification</p>
               </button>
 
               <button
@@ -254,7 +254,7 @@ export default function DonationForm({ streamer }) {
                     <span className="w-1.5 h-1.5 rounded-full bg-white" />
                   )}
                 </div>
-                <p className="text-[10px] text-zinc-400 font-medium">Instant Sandbox / ePayment</p>
+                <p className="text-xs text-zinc-400 font-medium">Instant Sandbox / ePayment</p>
               </button>
             </div>
           </div>
@@ -262,11 +262,11 @@ export default function DonationForm({ streamer }) {
           {/* Live On-Screen Preview */}
           <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-4">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                <Icon icon={Radio01Icon} size={12} className="text-violet-400" />
+              <span className="text-xs font-black uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
+                <Icon icon={Radio01Icon} size={14} className="text-violet-400" />
                 Live On-Stream Preview
               </span>
-              <span className="text-[10px] text-zinc-500 font-mono">OBS Alert</span>
+              <span className="text-xs text-zinc-500 font-mono">OBS Alert</span>
             </div>
 
             <div className="rounded-lg bg-zinc-950 border border-zinc-800 p-4 text-center space-y-1.5">

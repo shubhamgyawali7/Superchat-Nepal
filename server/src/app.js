@@ -73,6 +73,13 @@ app.use("/api/auth", auth);
 app.use('/api/streamer', streamer);
 app.use('/api/donations', donation);
 
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("Server error:", err?.message || err);
+  if (res.headersSent) return next(err);
+  res.status(err.status || 500).json({ error: err.message || "Internal server error" });
+});
+
 // Socket.io connection logic
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
@@ -86,6 +93,10 @@ io.on("connection", (socket) => {
     console.log("User disconnected:", socket.id);
   });
 });
+
+// Prevent socket hang up (ECONNRESET) when proxied by Next.js rewrites
+httpServer.keepAliveTimeout = 65000;
+httpServer.headersTimeout = 66000;
 
 httpServer.listen(PORT, () => {
   console.log(`Server is listening at port ${PORT}...........`);
