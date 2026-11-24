@@ -312,13 +312,9 @@ export default function DonationForm({ streamer }) {
               ? "Processing..."
               : `Send रु ${amount || "0"} superchat`}
           </button>
-          {isLoading
-            ? "Processing..."
-            : `Send रु ${amount || "0"} superchat`}
-        </button>
         <p className="-mt-4 text-center text-[11px] text-[#887d72] lg:col-span-2">Secure checkout through {paymentMethod === "esewa" ? "eSewa" : "Khalti"}.</p>
       </form>
     </div>
-    </div >
+    </div>
   );
 }
